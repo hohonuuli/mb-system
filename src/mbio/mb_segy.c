@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_segy.c	5/25/2004
- *    $Id$
+ *    $Id: mb_segy.c 1901 2011-07-15 08:26:03Z caress $
  *
- *    Copyright (c) 2004-2012 by
+ *    Copyright (c) 2004-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -56,12 +62,12 @@
 #include <math.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_segy.h"
-#include "../../include/mb_swap.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_segy.h"
+#include "mb_swap.h"
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_segy.c 1901 2011-07-15 08:26:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 /* 	function mb_segy_read_init opens an existing segy file for 

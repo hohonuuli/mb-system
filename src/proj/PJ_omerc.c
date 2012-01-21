@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 #define PROJ_PARMS__ \
 	double	alpha, lamc, lam1, phi1, lam2, phi2, Gamma, al, bl, el, \
 		singam, cosgam, sinrot, cosrot, u_0; \

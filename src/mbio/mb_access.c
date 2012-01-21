@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_access.c	11/1/00
- *    $Id$
+ *    $Id: mb_access.c 1907 2011-11-10 04:33:03Z caress $
 
- *    Copyright (c) 2000-2012 by
+ *    Copyright (c) 2000-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -35,13 +41,13 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_segy.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mb_segy.h"
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_access.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mb_alloc(int verbose, void *mbio_ptr,

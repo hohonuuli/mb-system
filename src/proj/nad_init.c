@@ -1,5 +1,11 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /******************************************************************************
- * $Id$
+ * $Id: nad_init.c 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  Load datum shift files into memory.

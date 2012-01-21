@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* <<<< North American Datum Transfer Program >>>> */
 #include <stdio.h>
 #include <stdlib.h>

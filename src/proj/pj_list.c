@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* Projection System: default list of projections
 ** Use local definition of PJ_LIST_H for subset.
 */

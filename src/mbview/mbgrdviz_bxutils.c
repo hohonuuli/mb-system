@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*
  * WARNING: This file is overwritten at code generation time.
  * Any changes to this file will be lost.

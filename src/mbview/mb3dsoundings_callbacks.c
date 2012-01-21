@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb3dsoundings_callbacks.c		5/25/2007
- *    $Id$
+ *    $Id: mb3dsoundings_callbacks.c 1893 2011-05-06 22:12:01Z caress $
  *
- *    Copyright (c) 2007-2012 by
+ *    Copyright (c) 2007-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -62,8 +68,8 @@
 #include "mb_glwdrawa.h"
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* Set flag to define mb3dsoundings global variables in this code block */
 #define MB3DSOUNDINGSGLOBAL 
@@ -80,7 +86,7 @@ static Cardinal 	ac;
 static Arg      	args[256];
 static char		value_text[MB_PATH_MAXLINE];
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb3dsoundings_callbacks.c 1893 2011-05-06 22:12:01Z caress $";
 
 /* function prototypes */
 /*------------------------------------------------------------------------------*/

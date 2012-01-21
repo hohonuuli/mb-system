@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_reson7kr.c	4/4/2004
- *	$Id$
+ *	$Id: mbr_reson7kr.c 1901 2011-07-15 08:26:03Z caress $
  *
- *    Copyright (c) 2004-2012 by
+ *    Copyright (c) 2004-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -101,14 +107,14 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_reson7k.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_reson7k.h"
 
 /* include for byte swapping */
-#include "../../include/mb_swap.h"
+#include "mb_swap.h"
 	
 /* turn on debug statements here */
 /* #define MBR_RESON7KR_DEBUG 1 */
@@ -266,7 +272,7 @@ int mbr_reson7kr_wr_soundvelocity(int verbose, int *bufferalloc, char **bufferpt
 int mbr_reson7kr_wr_absorptionloss(int verbose, int *bufferalloc, char **bufferptr, void *store_ptr, int *size, int *error);
 int mbr_reson7kr_wr_spreadingloss(int verbose, int *bufferalloc, char **bufferptr, void *store_ptr, int *size, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_reson7kr.c 1901 2011-07-15 08:26:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_reson7kr(int verbose, void *mbio_ptr, int *error)

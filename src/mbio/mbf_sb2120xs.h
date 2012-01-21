@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbf_sb2120xs.h	3/20/2000
- *	$Id$
+ *	$Id: mbf_sb2120xs.h 1892 2011-05-04 23:54:50Z caress $
  *
- *    Copyright (c) 2000-2012 by 
+ *    Copyright (c) 2000-2011 by 
  *    D. W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

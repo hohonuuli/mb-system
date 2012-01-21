@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsys_hsds.c	3/2/93
- *	$Id$
+ *	$Id: mbsys_hsds.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -141,13 +147,13 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_hsds.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_hsds.h"
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbsys_hsds.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbsys_hsds_alloc(int verbose, void *mbio_ptr, void **store_ptr, 

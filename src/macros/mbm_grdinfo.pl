@@ -3,9 +3,9 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
                          if 0;
 #--------------------------------------------------------------------
 #    The MB-system:	mbm_grdinfo.perl	4/26/01
-#    $Id$
+#    $Id: mbm_grdinfo.pl 1891 2011-05-04 23:46:30Z caress $
 #
-#    Copyright (c) 2001-2012 by 
+#    Copyright (c) 2001-2011 by 
 #    D. W. Caress (caress@mbari.org)
 #      Monterey Bay Aquarium Research Institute
 #      Moss Landing, CA
@@ -40,7 +40,7 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 #    10 km off the windward coast of Oahu)
 ##
 # Version:
-#   $Id$
+#   $Id: mbm_grdinfo.pl 1891 2011-05-04 23:46:30Z caress $
 #
 # Revisions:
 #   $Log: mbm_grdinfo.perl,v $
@@ -96,7 +96,7 @@ $verbose = 		($opt_V || $opt_v);
 if ($help)
 	{
 	print "\n$program_name:\n";
-	print "\nVersion: $Id$\n";
+	print "\nVersion: $Id: mbm_grdinfo.pl 1891 2011-05-04 23:46:30Z caress $\n";
 	print "\nMacro to get information regarding a GMT grd file when the\n";
 	print "region of interest is a subset of the area covered in the\n";
 	print "input file. If no bounds are specified, the program grdinfo \n";

@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* determine latitude from authalic latitude */
 #include <projects.h>
 # define P00 .33333333333333333333

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_mstiffss.c	4/7/98
- *	$Id$
+ *	$Id: mbr_mstiffss.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 1998-2012 by
+ *    Copyright (c) 1998-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -81,12 +87,12 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_mstiff.h"
-#include "../../include/mbf_mstiffss.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_mstiff.h"
+#include "mbf_mstiffss.h"
 
 /* essential function prototypes */
 int mbr_register_mstiffss(int verbose, void *mbio_ptr, 
@@ -116,7 +122,7 @@ int mbr_dem_mstiffss(int verbose, void *mbio_ptr, int *error);
 int mbr_rt_mstiffss(int verbose, void *mbio_ptr, void *store_ptr, int *error);
 int mbr_wt_mstiffss(int verbose, void *mbio_ptr, void *store_ptr, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_mstiffss.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_mstiffss(int verbose, void *mbio_ptr, int *error)

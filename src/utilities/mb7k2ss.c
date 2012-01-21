@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb7k2ss.c		8/15/2007
- *    $Id$
+ *    $Id: mb7k2ss.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2007-2012 by
+ *    Copyright (c) 2007-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -52,13 +58,13 @@
 #include <string.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_aux.h"
-#include "../../include/mbsys_reson7k.h"
-#include "../../include/mbsys_ldeoih.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_aux.h"
+#include "mbsys_reson7k.h"
+#include "mbsys_ldeoih.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -147,7 +153,7 @@ int mb7k2ss_intersect_grid(int verbose, double navlon, double navlat, double alt
 					struct mb7k2ss_grid_struct *grid,
 					double	 *range, int *error);
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mb7k2ss.c 1891 2011-05-04 23:46:30Z caress $";
 char program_name[] = "mb7k2ss";
 
 /*--------------------------------------------------------------------*/

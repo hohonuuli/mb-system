@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb7k2jstar.c	5/19/2005
- *    $Id$
+ *    $Id: mb7k2jstar.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2005-2012 by
+ *    Copyright (c) 2005-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -63,12 +69,12 @@
 #include <string.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mbsys_reson7k.h"
-#include "../../include/mbsys_jstar.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mbsys_reson7k.h"
+#include "mbsys_jstar.h"
 
 /* local defines */
 #define	MB7K2JSTAR_SSLOW	1
@@ -90,7 +96,7 @@
 #define MBES_ONLINE_THRESHOLD		15.0
 #define MBES_ONLINE_COUNT		30
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mb7k2jstar.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 

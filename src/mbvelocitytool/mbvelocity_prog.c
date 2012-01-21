@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:    mbvelocitytool.c        6/6/93
- *    $Id$ 
+ *    $Id: mbvelocity_prog.c 1891 2011-05-04 23:46:30Z caress $ 
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -205,18 +211,18 @@
 #include <X11/Intrinsic.h>
 
 /* MBIO include files */
-#include "../../include/mb_format.h"
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_swap.h"
-#include "../../include/mb_process.h"
-#include "../../include/mb_aux.h"
-#include "../../include/mb_xgraphics.h"
+#include "mb_format.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_swap.h"
+#include "mb_process.h"
+#include "mb_aux.h"
+#include "mb_xgraphics.h"
 #include "mbvelocity.h"
 
 /* id variables */
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbvelocity_prog.c 1891 2011-05-04 23:46:30Z caress $";
 static char program_name[] = "MBVELOCITYTOOL";
 static char help_message[] = "MBVELOCITYTOOL is an interactive water velocity profile editor  \nused to examine multiple water velocity profiles and to create  \nnew water velocity profiles which can be used for the processing  \nof multibeam sonar data.  In general, this tool is used to  \nexamine water velocity profiles obtained from XBTs, CTDs, or  \ndatabases, and to construct new profiles consistent with these  \nvarious sources of information.";
 static char usage_message[] = "mbvelocitytool [-Byr/mo/da/hr/mn/sc -Eyr/mo/da/hr/mn/sc \n\t-Fformat -Ifile -Ssvpfile -Wsvpfile -V -H]";

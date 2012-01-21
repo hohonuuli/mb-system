@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbnavadjust_prog.c	3/23/00
- *    $Id$
+ *    $Id: mbnavadjust_prog.c 1906 2011-09-27 19:27:33Z caress $
  *
- *    Copyright (c) 2000-2012 by
+ *    Copyright (c) 2000-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -149,14 +155,14 @@
 #include <X11/Intrinsic.h>
 
 /* MBIO include files */
-#include "../../include/mb_format.h"
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_process.h"
-#include "../../include/mb_aux.h"
-#include "../../include/mbsys_ldeoih.h"
-#include "../../include/mb_xgraphics.h"
+#include "mb_format.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_process.h"
+#include "mb_aux.h"
+#include "mbsys_ldeoih.h"
+#include "mb_xgraphics.h"
 
 /* define global control parameters */
 #include "mbnavadjust.h"
@@ -187,7 +193,7 @@ struct swathraw
 	};
 
 /* id variables */
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbnavadjust_prog.c 1906 2011-09-27 19:27:33Z caress $";
 static char program_name[] = "mbnavadjust";
 static char help_message[] =  "mbnavadjust is an interactive navigation adjustment package for swath sonar data.\n";
 static char usage_message[] = "mbnavadjust [-Iproject -V -H]";

@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 # define TOL	1e-10
 # define TWORPI	0.63661977236758134308
 #define PROJ_PARMS__ \

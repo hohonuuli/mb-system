@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* evaluate complex polynomial */
 #include <projects.h>
 /* note: coefficients are always from C_1 to C_n

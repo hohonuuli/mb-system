@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_em710raw.c	2/26/2008
- *	$Id$
+ *	$Id: mbr_em710raw.c 1911 2011-11-19 07:13:47Z caress $
  *
- *    Copyright (c) 2008-2012 by
+ *    Copyright (c) 2008-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -46,14 +52,14 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mbsys_simrad3.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mbsys_simrad3.h"
 
 /* include for byte swapping */
-#include "../../include/mb_swap.h"
+#include "mb_swap.h"
 
 /* get NaN detector */
 #if defined(isnanf)
@@ -213,7 +219,7 @@ int mbr_em710raw_wr_ss2(int verbose, FILE *mbfp, int swap,
 int mbr_em710raw_wr_wc(int verbose, FILE *mbfp, int swap, 
 		struct mbsys_simrad3_struct *store, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_em710raw.c 1911 2011-11-19 07:13:47Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_em710raw(int verbose, void *mbio_ptr, int *error)

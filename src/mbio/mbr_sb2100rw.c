@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_sb2100rw.c	3/3/94
- *	$Id$
+ *	$Id: mbr_sb2100rw.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1994-2012 by
+ *    Copyright (c) 1994-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -184,16 +190,16 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_sb2100.h"
-#include "../../include/mbf_sb2100rw.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_sb2100.h"
+#include "mbf_sb2100rw.h"
 
 /* include for byte swapping on little-endian machines */
 #ifdef BYTESWAPPED
-#include "../../include/mb_swap.h"
+#include "mb_swap.h"
 #endif
 
 /* essential function prototypes */
@@ -241,7 +247,7 @@ int mbr_sb2100rw_wr_tr(int verbose, FILE *mbfp, void *data_ptr, int *error);
 int mbr_sb2100rw_wr_dr(int verbose, FILE *mbfp, void *data_ptr, int *error);
 int mbr_sb2100rw_wr_ss(int verbose, FILE *mbfp, void *data_ptr, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_sb2100rw.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_sb2100rw(int verbose, void *mbio_ptr, int *error)

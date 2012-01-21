@@ -1,5 +1,11 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /******************************************************************************
- * $Id$
+ * $Id: PJ_aitoff.c 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  Implementation of the aitoff (Aitoff) and wintri (Winkel Tripel)
@@ -34,7 +40,7 @@
 #define PJ_LIB__
 #include <projects.h>
 
-PJ_CVSID("$Id$");
+PJ_CVSID("$Id: PJ_aitoff.c 1770 2009-10-19 17:16:39Z caress $");
 
 PROJ_HEAD(aitoff, "Aitoff") "\n\tMisc Sph";
 PROJ_HEAD(wintri, "Winkel Tripel") "\n\tMisc Sph\n\tlat_1";

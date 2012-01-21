@@ -1,5 +1,11 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /******************************************************************************
- * $Id$
+ * $Id: pj_initcache.c 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  init file definition cache.
@@ -30,7 +36,7 @@
 #include <projects.h>
 #include <string.h>
 
-PJ_CVSID("$Id$");
+PJ_CVSID("$Id: pj_initcache.c 1770 2009-10-19 17:16:39Z caress $");
 
 static int cache_count = 0;
 static int cache_alloc = 0;

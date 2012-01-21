@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_proj.c	7/16/2002
- *    $Id$
+ *    $Id: mb_proj.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2002-2012 by
+ *    Copyright (c) 2002-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -68,12 +74,12 @@
 #include <sys/stat.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 #include "proj_api.h"
 #include "projections.h"
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_proj.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mb_proj_init(int verbose,

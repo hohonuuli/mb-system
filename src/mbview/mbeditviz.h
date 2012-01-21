@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbeditviz.h		4/27/2007
- *    $Id$
+ *    $Id: mbeditviz.h 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2007-2012 by
+ *    Copyright (c) 2007-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -45,11 +45,11 @@
 #define	MB_EDITVIZ_DEF		1
 
 #ifndef MB_STATUS_DEF
-#include "../../include/mb_status.h"
+#include "mb_status.h"
 #endif
 
 #ifndef MB_DEFINE_DEF
-#include "../../include/mb_define.h"
+#include "mb_define.h"
 #endif
 
 #ifndef MB_PROCESS_DEF

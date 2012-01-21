@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbareaclean.c	2/27/2003
- *    $Id$
+ *    $Id: mbareaclean.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2003-2012 by
+ *    Copyright (c) 2003-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -89,13 +95,13 @@
 #include <time.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_swap.h"
-#include "../../include/mb_process.h"
-#include "../../include/mb_info.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_swap.h"
+#include "mb_process.h"
+#include "mb_info.h"
 
 /* allocation */
 #define FILEALLOCNUM	16
@@ -153,7 +159,7 @@ int getsoundingptr(int verbose, int soundingid,
 int flag_sounding(int verbose, int flag, int output_bad, int output_good,
 		  struct mbareaclean_sndg_struct *sndg, int *error);
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbareaclean.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 

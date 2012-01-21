@@ -1,5 +1,11 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /******************************************************************************
- * $Id$
+ * $Id: PJ_aeqd.c 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  Implementation of the aeqd (Azimuthal Equidistant) projection.
@@ -40,7 +46,7 @@
 #define PJ_LIB__
 #include	<projects.h>
 
-PJ_CVSID("$Id$");
+PJ_CVSID("$Id: PJ_aeqd.c 1770 2009-10-19 17:16:39Z caress $");
 
 PROJ_HEAD(aeqd, "Azimuthal Equidistant") "\n\tAzi, Sph&Ell\n\tlat_0 guam";
 

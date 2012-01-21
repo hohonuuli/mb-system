@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* allocate and deallocate memory */
 /* These routines are used so that applications can readily replace
 ** projection system memory allocation/deallocation call with custom

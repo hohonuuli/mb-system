@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 # include "projects.h"
 # include "geodesic.h"
 # define MERI_TOL 1e-9

@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 #ifndef lint
 static const char SCCSID[]="@(#)PJ_mpoly.c	4.1	94/05/22	GIE	REL";
 #endif

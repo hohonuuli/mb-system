@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 #define PROJ_PARMS__ \
 	double C_x, C_y, A, B, D;
 #define PJ_LIB__

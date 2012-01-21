@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbneptune2esf.c	2004/11/11
- *    $Id$
+ *    $Id: mbneptune2esf.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2004-2012 by
+ *    Copyright (c) 2004-2011 by
  *    Gordon Keith
  *      CSIRO Marine Research
  *      Castray Esplanade
@@ -76,13 +82,13 @@
 #include <time.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_swap.h"
-#include "../../include/mb_process.h"
-#include "../../include/mbsys_simrad2.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_swap.h"
+#include "mb_process.h"
+#include "mbsys_simrad2.h"
 
 /* length of line name nnnn_yyyymmdd_hhmmss = 20 */
 #define LINE_NAME_LENGTH 20
@@ -145,7 +151,7 @@ int line_array(struct neptune_line_tree *line, struct neptune_line_tree ***array
 int print_pings(FILE *output, struct neptune_ping_tree *node);
 int free_pings(int verbose, struct neptune_ping_tree **node, int *error);
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbneptune2esf.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 

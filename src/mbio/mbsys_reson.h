@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsys_reson.h	8/20/94
- *	$Id$
+ *	$Id: mbsys_reson.h 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 1994-2012 by
+ *    Copyright (c) 1994-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

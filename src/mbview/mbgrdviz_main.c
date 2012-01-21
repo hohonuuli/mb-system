@@ -1,10 +1,16 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 
 /* Begin user code block <abstract> */
 /*--------------------------------------------------------------------
  *    The MB-system:	mbgrdviz_main.c		10/9/2002
- *    $Id$
+ *    $Id: mbgrdviz_main.c 1893 2011-05-06 22:12:01Z caress $
  *
- *    Copyright (c) 2002-2012 by
+ *    Copyright (c) 2002-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -81,8 +87,8 @@ extern void BxExitCB(Widget, XtPointer, XtPointer);
 #include <unistd.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* mbview include file */
 #include "mbview.h"
@@ -176,7 +182,7 @@ void do_mbgrdviz_realtimesetup_updaterate( Widget w, XtPointer client_data, XtPo
 void do_mbgrdviz_realtimesetup_path_test( Widget w, XtPointer client_data, XtPointer call_data);
 void do_mbgrdviz_realtimesetup_pathmode( Widget w, XtPointer client_data, XtPointer call_data);
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbgrdviz_main.c 1893 2011-05-06 22:12:01Z caress $";
 static char program_name[] = "MBgrdviz";
 static char help_message[] =  "MBgrdviz provides simple interactive 2D/3Dvizualization of GMT grids.";
 static char usage_message[] = "mbgrdviz [-Igrdfile -T -V -H]";

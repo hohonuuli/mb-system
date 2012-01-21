@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_io.h	1/19/93
- *    $Id$
+ *    $Id: mb_segy.h 1892 2011-05-04 23:54:50Z caress $
  *
- *    Copyright (c) 2004-2012 by
+ *    Copyright (c) 2004-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

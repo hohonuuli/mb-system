@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*------------------------------------------------------------------------------
  *    The MB-system:	mbview_primary.c	9/25/2003
- *    $Id$
+ *    $Id: mbview_primary.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2003-2012 by
+ *    Copyright (c) 2003-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -84,8 +90,8 @@
 #include "mb_glwdrawa.h"
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* mbview include */
 #include "mbview.h"
@@ -94,7 +100,7 @@
 /*------------------------------------------------------------------------------*/
 
 /* local variables */
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbview_primary.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*------------------------------------------------------------------------------*/
 int mbview_setprimarygrid(int verbose, size_t instance,

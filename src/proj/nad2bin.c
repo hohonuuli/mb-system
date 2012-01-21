@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* Convert bivariate ASCII NAD27 to NAD83 tables to binary structure */
 #include <stdio.h>
 #include <stdlib.h>

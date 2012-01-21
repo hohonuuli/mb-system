@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_read_ping.c	2/3/93
- *    $Id$
+ *    $Id: mb_read_ping.c 1891 2011-05-04 23:46:30Z caress $
 
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -145,15 +151,15 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
 
 /*--------------------------------------------------------------------*/
 int mb_read_ping(int verbose, void *mbio_ptr, void *store_ptr, int *kind, int *error)
 {
-  static char rcs_id[]="$Id$";
+  static char rcs_id[]="$Id: mb_read_ping.c 1891 2011-05-04 23:46:30Z caress $";
 	char	*function_name = "mb_read_ping";
 	int	status;
 	struct mb_io_struct *mb_io_ptr;

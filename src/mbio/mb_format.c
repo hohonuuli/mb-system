@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_format.c	2/18/94
- *    $Id$
+ *    $Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -262,16 +268,16 @@
 #include <sys/stat.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_process.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_swap.h"
-#include "../../include/mb_format.h"
-#include "../../include/mbsys_simrad.h"
-#include "../../include/mbsys_simrad2.h"
-#include "../../include/mbsys_simrad3.h"
-#include "../../include/mbsys_jstar.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_process.h"
+#include "mb_io.h"
+#include "mb_swap.h"
+#include "mb_format.h"
+#include "mbsys_simrad.h"
+#include "mbsys_simrad2.h"
+#include "mbsys_simrad3.h"
+#include "mbsys_jstar.h"
 
 /* Alias table for old (pre-version 4.0) format id's */
 static int format_alias_table[] = 
@@ -288,7 +294,7 @@ static int format_alias_table[] =
 	71,	/* MBF_MBLDEOIH */
 	};
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mb_format_register(int verbose, 
@@ -635,10 +641,6 @@ int mb_format_register(int verbose,
 	else if (*format == MBF_HIR2RNAV)
 		{
 		status = mbr_register_hir2rnav(verbose, mbio_ptr, error);
-		}
-	else if (*format == MBF_HYSWEEP1)
-		{
-		status = mbr_register_hysweep1(verbose, mbio_ptr, error);
 		}
 	else
 		{
@@ -1537,17 +1539,6 @@ int mb_format_info(int verbose,
 			beamwidth_xtrack, beamwidth_ltrack, 
 			error);
 		}
-	else if (*format == MBF_HYSWEEP1)
-		{
-		status = mbr_info_hysweep1(verbose, system, 
-			beams_bath_max, beams_amp_max, pixels_ss_max, 
-			format_name, system_name, format_description, 
-			numfile, filetype, 
-			variable_beams, traveltime, beam_flagging, 
-			nav_source, heading_source, vru_source, svp_source, 
-			beamwidth_xtrack, beamwidth_ltrack, 
-			error);
-		}
 	else if (*format == MBF_DATALIST)
 		{
 		*format = MBF_DATALIST;
@@ -1697,7 +1688,7 @@ int mb_format(int verbose, int *format, int *error)
 /*--------------------------------------------------------------------*/
 int mb_format_system(int verbose, int *format, int *system, int *error)
 {
-  static char rcs_id[]="$Id$";
+  static char rcs_id[]="$Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $";
 	char	*function_name = "mb_format_system";
 	int	status;
 
@@ -1767,7 +1758,7 @@ int mb_format_dimensions(int verbose, int *format,
 		int *beams_bath_max, int *beams_amp_max, int *pixels_ss_max, 
 		int *error)
 {
-  static char rcs_id[]="$Id$";
+  static char rcs_id[]="$Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $";
 	char	*function_name = "mb_format_dimensions";
 	int	status;
 
@@ -1836,7 +1827,7 @@ int mb_format_dimensions(int verbose, int *format,
 /*--------------------------------------------------------------------*/
 int mb_format_description(int verbose, int *format, char *description, int *error)
 {
-  static char rcs_id[]="$Id$";
+  static char rcs_id[]="$Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $";
 	char	*function_name = "mb_format_description";
 	int	status;
 
@@ -1902,7 +1893,7 @@ int mb_format_flags(int verbose, int *format,
 		int *variable_beams, int *traveltime, int *beam_flagging, 
 		int *error)
 {
-  static char rcs_id[]="$Id$";
+  static char rcs_id[]="$Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $";
 	char	*function_name = "mb_format_flags";
 	int	status;
 
@@ -1975,7 +1966,7 @@ int mb_format_source(int verbose, int *format,
 		int *vru_source, int *svp_source, 
 		int *error)
 {
-  static char rcs_id[]="$Id$";
+  static char rcs_id[]="$Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $";
 	char	*function_name = "mb_format_source";
 	int	status;
 
@@ -2046,7 +2037,7 @@ int mb_format_beamwidth(int verbose, int *format,
 		double *beamwidth_xtrack, double *beamwidth_ltrack,
 		int *error)
 {
-  static char rcs_id[]="$Id$";
+  static char rcs_id[]="$Id: mb_format.c 1896 2011-05-25 06:09:35Z caress $";
 	char	*function_name = "mb_format_beamwidth";
 	int	status;
 
@@ -3354,31 +3345,6 @@ int mb_get_format(int verbose, char *filename, char *fileroot,
 		    fileroot[strlen(filename)-suffix_len] = '\0';
 		    }
 		*format = MBF_HIR2RNAV;
-		found = MB_YES;
-		}
-	    }
-
-	/* look for a HYSWEEP *.HSX file format convention*/
-	if (found == MB_NO)
-	    {
-	    if (strlen(filename) >= 5)
-		i = strlen(filename) - 4;
-	    else
-		i = 0;
-	    if ((suffix = strstr(&filename[i],".hsx")) != NULL)
-		suffix_len = 4;
-	    else if ((suffix = strstr(&filename[i],".HSX")) != NULL)
-		suffix_len = 4;
-	    else
-		suffix_len = 0;
-	    if (suffix_len == 4)
-		{
-		if (fileroot != NULL)
-		    {
-		    strncpy(fileroot, filename, strlen(filename)-suffix_len);
-		    fileroot[strlen(filename)-suffix_len] = '\0';
-		    }
-		*format = MBF_HYSWEEP1;
 		found = MB_YES;
 		}
 	    }

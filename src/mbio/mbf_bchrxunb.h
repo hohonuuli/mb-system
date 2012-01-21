@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbf_bchrxunb.h	8/29/97
- *	$Id$
+ *	$Id: mbf_bchrxunb.h 1892 2011-05-04 23:54:50Z caress $
  *
- *    Copyright (c) 1997-2012 by
+ *    Copyright (c) 1997-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

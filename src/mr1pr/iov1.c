@@ -1,6 +1,12 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	iov1.c	3/7/2003
- *	$Id$
+ *	$Id: iov1.c 1770 2009-10-19 17:16:39Z caress $
  *
  *    Copyright (c) 2003 by
  *    David W. Caress (caress@mbari.org)

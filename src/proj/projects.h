@@ -1,5 +1,5 @@
 /******************************************************************************
- * $Id$
+ * $Id: projects.h 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  Primary (private) include file for PROJ.4 library.

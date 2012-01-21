@@ -1,5 +1,11 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /******************************************************************************
- * $Id$
+ * $Id: PJ_aea.c 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  Implementation of the aea (Albers Equal Area) projection.
@@ -43,7 +49,7 @@
 #define PJ_LIB__
 #include <projects.h>
 
-PJ_CVSID("$Id$");
+PJ_CVSID("$Id: PJ_aea.c 1770 2009-10-19 17:16:39Z caress $");
 
 # define EPS10	1.e-10
 # define TOL7	1.e-7

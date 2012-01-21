@@ -1,4 +1,10 @@
-static const char RCS_ID[] = "$Id$";
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
+static const char RCS_ID[] = "$Id: PJ_lcca.c 1770 2009-10-19 17:16:39Z caress $";
 /* PROJ.4 Cartographic Projection System 
 */
 #define MAX_ITER 10

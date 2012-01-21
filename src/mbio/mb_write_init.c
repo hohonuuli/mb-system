@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_write_init.c	1/25/93
- *    $Id$
+ *    $Id: mb_write_init.c 1898 2011-06-13 19:49:07Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -179,51 +185,26 @@
 #include <string.h>
 
 /* XDR i/o include file */
-#ifdef IRIX
-#include <rpc/rpc.h>
+#ifdef HAVE_RPC_RPC_H
+# include <rpc/rpc.h>
 #endif
-#ifdef IRIX64
-#include <rpc/rpc.h>
-#endif
-#ifdef SOLARIS
-#include <rpc/rpc.h>
-#endif
-#ifdef LYNX
-#include <rpc/rpc.h>
-#endif
-#ifdef LINUX
-#include <rpc/rpc.h>
-#endif
-#ifdef SUN
-#include <rpc/xdr.h>
-#endif
-#ifdef HPUX
-#include <rpc/rpc.h>
-#endif
-#ifdef DARWIN
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-#endif
-#ifdef CYGWIN
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-#endif
-#ifdef OTHER
-#include <rpc/types.h>
-#include <rpc/xdr.h>
+#ifdef HAVE_RPC_TYPES_H
+# include <rpc/types.h>
+# include <rpc/xdr.h>
 #endif
 
+
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_segy.h"
-#include "../../include/sapi.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mb_segy.h"
+#include "sapi.h"
 #include "gsf.h"
 #include "netcdf.h"
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_write_init.c 1898 2011-06-13 19:49:07Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mb_write_init(int verbose, 

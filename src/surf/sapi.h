@@ -46,13 +46,17 @@
 #define _SAPI
 
 #ifndef __SAPI__
-
+/**
 #ifndef _WIN32
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 #else
 #include <xdr_win32.h>
 #endif
+**/
+
+#include <rpc/types.h>
+#include <rpc/xdr.h>
 
 /*
    ALL DATA ARE SCALED IN MKS
@@ -618,7 +622,7 @@ typedef struct
               float   minSsTimeStb                   ;
               float   maxSsTimePort                  ;
               float   maxSsTimeStb                   ;
-              u_char  ssData[1]                      ;/* nr of actual Data times
+              mb_u_char  ssData[1]                      ;/* nr of actual Data times
                                                          first Port then Stb */
             } SurfSidescanData;
 

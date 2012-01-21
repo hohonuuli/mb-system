@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_zgrid.c	    4/25/95
- *    $Id$
+ *    $Id: mb_zgrid.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -145,7 +151,7 @@
 #include <math.h>
 
 /* MBIO include files */
-#include "../../include/mb_define.h"
+#include "mb_define.h"
 
 #define ITERMAX 1000
 #define ITERTRANSITION 300

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbbackangle.c	1/6/95
- *    $Id$
+ *    $Id: mbbackangle.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1995-2012 by
+ *    Copyright (c) 1995-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -147,12 +153,16 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_process.h"
-#include "../../include/mb_aux.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_format.h"
+#include "mb_process.h"
+#include "mb_aux.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -221,7 +231,7 @@ int write_cdfgrd(int verbose, char *outfile, float *grid,
 		char *projection, int argc, char **argv, 
 		int *error);
 						
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbbackangle.c 1891 2011-05-04 23:46:30Z caress $";
 char program_name[] = "mbbackangle";
 
 /*--------------------------------------------------------------------*/
@@ -350,7 +360,7 @@ by MBprocess.";
 	double	ssdepression = 20.0;
 	int	corr_slope = MB_NO;
 	int	corr_topogrid = MB_NO;
-	int	corr_symmetry = MBP_SSCORR_ASYMMETRIC; /* BOB */
+	int	corr_symmetry = MBP_SSCORR_ASYMMETRIC; 
 	int	amp_corr_type;
 	int	amp_corr_slope = MBP_AMPCORR_IGNORESLOPE;
 	int	ss_corr_slope = MBP_SSCORR_IGNORESLOPE;

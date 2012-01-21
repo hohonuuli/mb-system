@@ -1,10 +1,16 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*
 ** libproj -- library of cartographic projections
 **
 ** Copyright (c) 2004   Gerald I. Evenden
 */
 static const char
-LIBPROJ_ID[] = "$Id$";
+LIBPROJ_ID[] = "$Id: PJ_geos.c 1770 2009-10-19 17:16:39Z caress $";
 /*
 ** See also (section 4.4.3.2):
 **   http://www.eumetsat.int/en/area4/msg/news/us_doc/cgms_03_26.pdf

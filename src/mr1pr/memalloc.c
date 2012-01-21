@@ -1,6 +1,12 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	memalloc.c	3/7/2003
- *	$Id$
+ *	$Id: memalloc.c 1770 2009-10-19 17:16:39Z caress $
  *
  *    Copyright (c) 2003, 2006 by
  *    David W. Caress (caress@mbari.org)
@@ -60,8 +66,11 @@
 #include "mem.h"
 
 #include <sys/types.h>
+#ifndef WIN32
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#endif
+
 
 /* maximum allocation size allowed (0 => no limit) */
 static unsigned long mem_maxallocsz= 0;

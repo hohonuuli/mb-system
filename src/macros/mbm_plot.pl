@@ -3,9 +3,9 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
                          if 0;
 #--------------------------------------------------------------------
 #    The MB-system:	mbm_plot.perl	6/18/93
-#    $Id$
+#    $Id: mbm_plot.pl 1891 2011-05-04 23:46:30Z caress $
 #
-#    Copyright (c) 1993-2012 by 
+#    Copyright (c) 1993-2011 by 
 #    D. W. Caress (caress@mbari.org)
 #      Monterey Bay Aquarium Research Institute
 #      Moss Landing, CA
@@ -74,7 +74,7 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 #   June 17, 1993
 #
 # Version:
-#   $Id$
+#   $Id: mbm_plot.pl 1891 2011-05-04 23:46:30Z caress $
 #
 # Revisions:
 #   $Log: mbm_plot.perl,v $
@@ -494,7 +494,7 @@ $zbounds = 		($opt_Z || $opt_z);
 if ($help)
 	{
 	print "\n$program_name:\n";
-	print "\nVersion: $Id$\n";
+	print "\nVersion: $Id: mbm_plot.pl 1891 2011-05-04 23:46:30Z caress $\n";
 	print "\nMacro to generate a shellscript of MB-System and GMT commands \n";
 	print "which, when executed, will generate a Postscript plot of the \n";
 	print "specified swath sonar data. The plot may include bathymetry color \n";

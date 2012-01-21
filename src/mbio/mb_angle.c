@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_angle.c	1/21/93
- *    $Id$
+ *    $Id: mb_angle.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1998-2012 by
+ *    Copyright (c) 1998-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -228,10 +234,10 @@
 #include <math.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_angle.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mb_takeoff_to_rollpitch(int verbose,
@@ -472,8 +478,6 @@ int mb_lever(int verbose,
 	    {
 	    /* get initial angles */
 	    roll = RTD * acos(xx / r );
-	    if (zz < 0.0)
-	    	roll = -roll;
 	    if (sin(DTR * roll) != 0.0)
 		pitch = RTD * asin(yy / (r * sin(DTR * roll)));
 	    else

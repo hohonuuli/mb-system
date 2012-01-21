@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsegypsd.c	11/2/2009
- *    $Id$
+ *    $Id: mbsegypsd.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2009-2012 by
+ *    Copyright (c) 2009-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -34,11 +40,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_segy.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_segy.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -81,7 +91,7 @@ char	*getenv();
 	stderr if verbose > 1) */
 FILE	*outfp;
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbsegypsd.c 1891 2011-05-04 23:46:30Z caress $";
 char program_name[] = "mbsegypsd";
 char help_message[] =  "mbsegypsd calculates the power spectral density function of each trace in a segy data file, \noutputting the results as a GMT grid file.";
 char usage_message[] = "mbsegypsd -Ifile -Oroot [-Ashotscale \n\

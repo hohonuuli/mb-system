@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsegygrid.c	6/12/2004
- *    $Id$
+ *    $Id: mbsegygrid.c 1901 2011-07-15 08:26:03Z caress $
  *
- *    Copyright (c) 2004-2012 by
+ *    Copyright (c) 2004-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -87,11 +93,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_segy.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_segy.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -137,7 +147,7 @@ int four1(float *data, int *n, int *isign);
 	stderr if verbose > 1) */
 FILE	*outfp;
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbsegygrid.c 1901 2011-07-15 08:26:03Z caress $";
 char program_name[] = "MBsegygrid";
 char help_message[] =  "MBsegygrid grids trace data from segy data files.";
 char usage_message[] = "MBsegygrid -Ifile -Oroot [-Ashotscale/timescale \n\

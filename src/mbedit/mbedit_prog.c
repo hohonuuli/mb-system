@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbedit.c	4/8/93
- *    $Id$
+ *    $Id: mbedit_prog.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -327,13 +333,13 @@
 #include <X11/Intrinsic.h>
 
 /* MBIO include files */
-#include "../../include/mb_format.h"
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_swap.h"
-#include "../../include/mb_process.h"
-#include "../../include/mb_xgraphics.h"
+#include "mb_format.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_swap.h"
+#include "mb_process.h"
+#include "mb_xgraphics.h"
 #include "mbedit.h"
 
 /* output mode defines */
@@ -428,7 +434,7 @@ struct mbedit_ping_struct
 	};
 
 /* id variables */
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbedit_prog.c 1907 2011-11-10 04:33:03Z caress $";
 static char program_name[] = "MBedit";
 static char help_message[] =  
 "MBedit is an interactive editor used to identify and flag\n\
@@ -484,7 +490,7 @@ static int	*editcount = NULL;
 static char	comment[MB_COMMENT_MAXLINE];
 
 /* buffer control variables */
-#define	MBEDIT_BUFFER_SIZE	30000
+#define	MBEDIT_BUFFER_SIZE	25000
 static int	file_open = MB_NO;
 static int	buff_size = MBEDIT_BUFFER_SIZE;
 static int	buff_size_max = MBEDIT_BUFFER_SIZE;
@@ -5362,7 +5368,6 @@ int mbedit_load_data(int buffer_size,
 	/* load data */
 	do
 		{
-		error = MB_ERROR_NO_ERROR;
 		status = mb_get_all(verbose,imbio_ptr,&store_ptr,&kind,
 				ping[nbuff].time_i,
 				&ping[nbuff].time_d,

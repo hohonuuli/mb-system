@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbvelocity_callbacks.c	4/7/97
- *    $Id$
+ *    $Id: mbvelocity_callbacks.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -112,9 +118,9 @@
 
 /* mbedit widget includes */
 #include "mbvelocity_creation.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_status.h"
-#include "../../include/mb_xgraphics.h"
+#include "mb_define.h"
+#include "mb_status.h"
+#include "mb_xgraphics.h"
 #include "mbvelocity.h"
 
 /*

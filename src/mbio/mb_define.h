@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_io.h	4/21/96
- *    $Id$
+ *    $Id: mb_define.h 1906 2011-09-27 19:27:33Z caress $
  *
- *    Copyright (c) 1996-2012 by
+ *    Copyright (c) 1996-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -161,6 +161,14 @@
  *
  *
  */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+ /* include for mb_s_char types */
+#if HAVE_STDINT_H
+# include <stdint.h>
+#endif
  
 /* include this code only once */
 #ifndef MB_DEFINE_DEF
@@ -213,35 +221,12 @@
 
 /* type definitions of signed and unsigned char */
 typedef unsigned char	mb_u_char;
-#ifdef IRIX
-typedef signed char	mb_s_char;
-#endif
-#ifdef IRIX64
-typedef signed char	mb_s_char;
-#endif
-#ifdef SOLARIS
-typedef signed char	mb_s_char;
-#endif
-#ifdef LINUX
-typedef signed char	mb_s_char;
-#endif
-#ifdef LYNX
-typedef signed char	mb_s_char;
-#endif
-#ifdef SUN
-typedef char	mb_s_char;
-#endif
-#ifdef HPUX
-typedef signed char	mb_s_char;
-#endif
-#ifdef DARWIN
-typedef char	mb_s_char;
-#endif
-#ifdef CYGWIN
-typedef char	mb_s_char;
-#endif
-#ifdef OTHER
-typedef signed char	mb_s_char;
+
+/* From stdint.h if availbale */
+#if defined INT8_MAX || defined int8_t
+typedef int8_t mb_s_char;
+#else
+typedef signed char mb_s_char;
 #endif
 
 /* type definitions of signed and unsigned long int (64 bit integer) */

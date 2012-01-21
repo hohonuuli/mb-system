@@ -1,5 +1,5 @@
 /******************************************************************************
- * $Id$
+ * $Id: proj_api.h 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  Public (application) include file for PROJ.4 API, and constants.

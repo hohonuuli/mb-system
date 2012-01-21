@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_hsldeoih.c	2/11/93
- *	$Id$
+ *	$Id: mbr_hsldeoih.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -134,16 +140,16 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_hsds.h"
-#include "../../include/mbf_hsldeoih.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_hsds.h"
+#include "mbf_hsldeoih.h"
 
 /* include for byte swapping on little-endian machines */
 #ifdef BYTESWAPPED
-#include "../../include/mb_swap.h"
+#include "mb_swap.h"
 #endif
 
 /* local defines */
@@ -209,7 +215,7 @@ int mbr_hsldeoih_wr_calibrate(int verbose, FILE *mbfp,
 int mbr_hsldeoih_wr_comment(int verbose, FILE *mbfp, 
 		struct mbf_hsldeoih_struct *data, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_hsldeoih.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_hsldeoih(int verbose, void *mbio_ptr, int *error)

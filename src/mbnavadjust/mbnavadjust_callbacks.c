@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbnavadjust_callbacks.c	2/22/2000
- *    $Id$
+ *    $Id: mbnavadjust_callbacks.c 1898 2011-06-13 19:49:07Z caress $
  *
- *    Copyright (c) 2000-2012 by
+ *    Copyright (c) 2000-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -106,11 +112,11 @@
 
 #define MBNAVADJUST_DECLARE_GLOBALS
 #include "mbnavadjust_extrawidgets.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_status.h"
-#include "../../include/mb_aux.h"
+#include "mb_define.h"
+#include "mb_status.h"
+#include "mb_aux.h"
 #include "mbnavadjust.h"
-#include "../../include/mb_xgraphics.h"
+#include "mb_xgraphics.h"
 
 #include "mbnavadjust_creation.h"
 

@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 
 /* Begin user code block <abstract> */
 /* End user code block <abstract> */
@@ -61,7 +67,7 @@ extern void do_quit(Widget, XtPointer, XtPointer);
 
 /* Begin user code block <globals> */
 
-#include "../../include/mb_define.h"
+#include "mb_define.h"
 #include "mbvelocity.h"
 
 Widget Createwindow_mbvelocity(Widget parent);

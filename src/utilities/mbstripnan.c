@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:    mbstripNaN.c        8/8/02
- *    $Id$
+ *    $Id: mbstripnan.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2002-2012 by
+ *    Copyright (c) 2002-2011 by
  *    Mike McCann (mccann@mbari.org)
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute

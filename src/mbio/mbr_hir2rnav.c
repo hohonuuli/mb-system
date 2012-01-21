@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_hir2rnav.c	5/20/99
  *	$Id: mbr_hir2rnav.c 1829 2010-02-05 02:53:39Z caress $
  *
- *    Copyright (c) 1999-2012 by
+ *    Copyright (c) 1999-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -35,11 +41,11 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_singlebeam.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_singlebeam.h"
 
 /* essential function prototypes */
 int mbr_register_hir2rnav(int verbose, void *mbio_ptr, 

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbnavedit_callbacks.c	6/24/95
- *    $Id$
+ *    $Id: mbnavedit_callbacks.c 1890 2011-05-03 19:25:11Z caress $
  *
- *    Copyright (c) 1995-2012 by
+ *    Copyright (c) 1995-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -143,11 +149,11 @@
 #include <Xm/List.h>
 
 #define MBNAVEDIT_DECLARE_GLOBALS
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_process.h"
-#include "../../include/mb_xgraphics.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_process.h"
+#include "mb_xgraphics.h"
 #include "mbnavedit_extrawidgets.h"
 #include "mbnavedit.h"
 

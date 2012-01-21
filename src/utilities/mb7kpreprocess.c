@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb7kpreprocess.c	10/12/2005
- *    $Id$
+ *    $Id: mb7kpreprocess.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 2005-2012 by
+ *    Copyright (c) 2005-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -107,12 +113,12 @@
 #include <sys/stat.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_aux.h"
-#include "../../include/mbsys_reson7k.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_aux.h"
+#include "mbsys_reson7k.h"
 
 #define MB7KPREPROCESS_ALLOC_CHUNK 1000
 #define MB7KPREPROCESS_PROCESS		1
@@ -123,7 +129,7 @@
 #define	MB7KPREPROCESS_KLUGE_USEVERTICALDEPTH	1
 #define	MB7KPREPROCESS_KLUGE_ZEROALONGTRACKANGLES	2
 #define	MB7KPREPROCESS_KLUGE_ZEROATTITUDECORRECTION	3
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mb7kpreprocess.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_readgrd.c	12/10/2007
- *    $Id$
+ *    $Id: mb_readgrd.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2007-2012 by
+ *    Copyright (c) 2007-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -36,8 +42,8 @@
 #include <time.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -66,7 +72,7 @@ extern int isnanf(float x);
 /* default no data value define */
 #define	DEFAULT_NODATA		-9999999.9
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mb_readgrd.c 1891 2011-05-04 23:46:30Z caress $";
 
 /* global variables */
 static char program_name[] = "mb_readgrd";

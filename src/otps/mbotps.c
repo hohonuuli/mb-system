@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbotps.c	7/30/2009
- *    $Id$
+ *    $Id: mbotps.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2009-2012 by
+ *    Copyright (c) 2009-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -55,11 +61,15 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_process.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_process.h"
 
 /* OTPS isntallation location include */
 #include "otps.h"
@@ -76,7 +86,7 @@ char	*getenv();
 
 int main (int argc, char **argv)
 {
-	static char rcs_id[] = "$Id$";
+	static char rcs_id[] = "$Id: mbotps.c 1891 2011-05-04 23:46:30Z caress $";
 	static char program_name[] = "mbotps";
 	static char help_message[] =  "MBotps predicts tides using methods and data derived from the OSU Tidal Prediction Software (OTPS) distributions.";
 	static char usage_message[] = "mbotps -Rlon/lat -Byear/month/day/hour/minute/second\n\t-Eyear/month/day/hour/minute/second -Dinterval -Ooutput\n\t[-Idatalist.mb-1 -Fformat -V]";

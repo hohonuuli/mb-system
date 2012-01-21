@@ -1,8 +1,15 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*------------------------------------------------------------------------------
  *    The MB-system:	mbview_profile.c	3/8/2006
- *    $Id$
+ *    $Id: mbview_profile.c 1893 2011-05-06 22:12:01Z caress $
  *
- *    Copyright (c) 2006-2012 by
+ *    Copyright (c) 2006-2011
+		 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -61,8 +68,8 @@
 #include "mb_glwdrawa.h"
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* mbview include */
 #include "mbview.h"
@@ -83,7 +90,7 @@ static Cardinal 	ac = 0;
 static Arg      	args[256];
 static char		value_text[MB_PATH_MAXLINE];
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbview_profile.c 1893 2011-05-06 22:12:01Z caress $";
 
 /*------------------------------------------------------------------------------*/
 int mbview_getprofilecount(int verbose, size_t instance,

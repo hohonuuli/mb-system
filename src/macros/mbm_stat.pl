@@ -3,9 +3,9 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
                          if 0;
 #--------------------------------------------------------------------
 #    The MB-system:	mbm_stat.perl	8/14/93
-#    $Id$
+#    $Id: mbm_stat.pl 1891 2011-05-04 23:46:30Z caress $
 #
-#    Copyright (c) 1993-2012 by 
+#    Copyright (c) 1993-2011 by 
 #    D. W. Caress (caress@mbari.org)
 #      Monterey Bay Aquarium Research Institute
 #      Moss Landing, CA
@@ -32,7 +32,7 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 #   August 14, 1993
 #
 # Version:
-#   $Id$
+#   $Id: mbm_stat.pl 1891 2011-05-04 23:46:30Z caress $
 #
 # Revisions:
 #   $Log: mbm_stat.perl,v $
@@ -76,7 +76,7 @@ $verbose = ($opt_V || $opt_v);
 if ($help)
 	{
 	print "\n$program_name:\n";
-	print "\nVersion: $Id$\n";
+	print "\nVersion: $Id: mbm_stat.pl 1891 2011-05-04 23:46:30Z caress $\n";
 	print "\nPerl shellscript to extract beam statistics from the ouput of mbinfo.\n";
 	print "\nUsage: $program_name -Ifile [-V -H]\n";
 	exit 0;

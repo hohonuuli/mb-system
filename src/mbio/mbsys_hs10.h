@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsys_hs10.h	12/4/00
- *	$Id$
+ *	$Id: mbsys_hs10.h 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 2000-2012 by
+ *    Copyright (c) 2000-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

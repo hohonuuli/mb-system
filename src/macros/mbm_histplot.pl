@@ -3,9 +3,9 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
                          if 0;
 #--------------------------------------------------------------------
 #    The MB-system:	mbm_histplot.perl	3/20/2006
-#    $Id$
+#    $Id: mbm_histplot.pl 1891 2011-05-04 23:46:30Z caress $
 #
-#    Copyright (c) 2006-2012 by 
+#    Copyright (c) 2006-2011 by 
 #    D. W. Caress (caress@mbari.org)
 #      Monterey Bay Aquarium Research Institute
 #      Moss Landing, CA
@@ -48,7 +48,7 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 #   March 20, 2006
 #
 # Version:
-#   $Id$
+#   $Id: mbm_histplot.pl 1891 2011-05-04 23:46:30Z caress $
 #
 # Revisions:
 #   $Log: mbm_histplot.perl,v $
@@ -185,7 +185,7 @@ $execute = 		($opt_X || $opt_x);
 if ($help)
 	{
 	print "\n$program_name:\n";
-	print "\nVersion: $Id$\n";
+	print "\nVersion: $Id: mbm_histplot.pl 1891 2011-05-04 23:46:30Z caress $\n";
 	print "\nMacro to generate a shellscript of GMT commands which, \n";
 	print "when executed, will generate a Postscript histogram plot\n";
 	print "of a set of data values.\n";

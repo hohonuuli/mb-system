@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_get_value.c	2/15/93
- *    $Id$
+ *    $Id: mb_get_value.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -102,14 +108,14 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_swap.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_swap.h"
+#include "mb_define.h"
 
 /* maximum line length in characters */
 #define MB_GET_VALUE_MAXLINE 200
 
-/* static char rcs_id[]="$Id$"; */
+/* static char rcs_id[]="$Id: mb_get_value.c 1891 2011-05-04 23:46:30Z caress $"; */
 char	tmp[MB_GET_VALUE_MAXLINE];
 
 /*--------------------------------------------------------------------*/

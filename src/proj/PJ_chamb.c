@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 typedef struct { double r, Az; } VECT;
 #define PROJ_PARMS__ \
 	struct { /* control point data */ \

@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /********************************************************************
  *
  * Module Name : GSF_INDX.C
@@ -62,7 +68,6 @@
  *                 writing to the index file, as an alternative to the
  *                 DISPLAY_SPINNER printouts.  Replaced references to long types
  *                 with int types, for compilation on 64-bit architectures.
- * clb  05/27/11   added reference to __MINGW64__
  *
  *
  * Classification : Unclassified
@@ -81,7 +86,7 @@
 #include <string.h>
 #if defined(OS2) || defined(WIN32)
     #include <process.h>
-    #if defined (__MINGW32__) || defined (__MINGW64__)
+    #if defined (__MINGW32__)
         #include <unistd.h>
     #endif
     #if defined (__BORLANDC__)

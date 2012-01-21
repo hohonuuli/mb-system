@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* procedures for evaluating Tseries */
 # include <projects.h>
 # define NEAR_ONE	1.00001

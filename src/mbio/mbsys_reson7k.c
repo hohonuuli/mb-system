@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsys_reson7k.c	3.00	3/23/2004
- *	$Id$
+ *	$Id: mbsys_reson7k.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 2004-2012 by
+ *    Copyright (c) 2004-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -104,17 +110,17 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_reson7k.h"
-#include "../../include/mb_segy.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_reson7k.h"
+#include "mb_segy.h"
 	
 /* turn on debug statements here */
 /* #define MSYS_RESON7KR_DEBUG 1 */
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbsys_reson7k.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbsys_reson7k_zero7kheader(int verbose, s7k_header	*header, 

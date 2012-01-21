@@ -1,5 +1,11 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /******************************************************************************
- * $Id$
+ * $Id: jniproj.c 1770 2009-10-19 17:16:39Z caress $
  *
  * Project:  PROJ.4
  * Purpose:  Java/JNI wrappers for PROJ.4 API.
@@ -49,7 +55,7 @@
 
 #define arraysize 300
 
-PJ_CVSID("$Id$");
+PJ_CVSID("$Id: jniproj.c 1770 2009-10-19 17:16:39Z caress $");
 
 /*!
  * \brief

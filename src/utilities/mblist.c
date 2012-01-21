@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mblist.c	2/1/93
- *    $Id$
+ *    $Id: mblist.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -263,12 +269,16 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mbsys_simrad2.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mbsys_simrad2.h"
 
 /* GMT include files */
 #include "gmt_nan.h"
@@ -375,7 +385,7 @@ int mb_get_raw_simrad2(int verbose, void *mbio_ptr,
 /* NaN value */
 double	NaN;
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mblist.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsys_surf.c	3.00	6/25/01
- *	$Id$
+ *	$Id: mbsys_surf.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2001-2012 by
+ *    Copyright (c) 2001-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -62,18 +68,18 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_surf.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_surf.h"
 
 double mbsys_get_depth(	SurfMultiBeamDepth* 			MultiBeamDepth,
 						SurfTransducerParameterTable	TransducerTable,
 						float	heave,
 						int		n );
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbsys_surf.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbsys_surf_alloc(int verbose, void *mbio_ptr, void **store_ptr,

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbauvloglist.c	8/14/2006
- *    $Id$
+ *    $Id: mbauvloglist.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2006-2012 by
+ *    Copyright (c) 2006-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -41,8 +47,8 @@
 #include <time.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* local defines */
 #define	NFIELDSMAX	50
@@ -52,7 +58,7 @@
 #define	TYPE_INTEGER	2
 #define	TYPE_DOUBLE	3
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbauvloglist.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 

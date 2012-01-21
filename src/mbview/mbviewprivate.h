@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbviewprivate.h	9/24/2003
- *    $Id$
+ *    $Id: mbviewprivate.h 1893 2011-05-06 22:12:01Z caress $
  *
- *    Copyright (c) 2003-2012 by
+ *    Copyright (c) 2003-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

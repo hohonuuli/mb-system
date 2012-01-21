@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /********************************************************************
  *
  * Module Name : GSF
@@ -113,12 +119,6 @@
  * mab 02-01-09   Updates to support Reson 7125. Added new subrecord IDs and subrecord definitions for Kongsberg
  *                sonar systems where TWTT and angle are populated from raw range and beam angle datagram. Added
  *                new subrecord definition for EM2000.  Bug fixes in gsfOpen and gsfPercent. 
- * clb 05-17-11   Added depth sensor and receiver array offsets to the gsfGetMBParams() and gsfPutMBParams()
- * clb 10-04-11   Added check in gsfUnpackStream() for a partial record at the end of the file
- * clb 10-17-11   Handle all the error processing in gsfOpen() and gsfOpenBuffered() consistently
- * clb 11-09-aa   Added validity checks in gsfPutMBParams(); initialize param structure in gsfGetMBParams();
- *                added gsfInitializeMBParams(); validate handles in functions that use them
- * 
  *
  * Classification : Unclassified
  *
@@ -159,9 +159,6 @@
 #define GSF_FILL_SIZE_CHECKSUM 12         /* gsf packaging with checksum */
 #define GSF_STREAM_BUF_SIZE 8192          /* gsf default stream buffer size */
 #define GSF_UNKNOWN_PARAM_TEXT "UNKNWN"   /* Flag value for unknown parameter value */
-
-#define GSF_MAX_PARAM    999999          /* used in gsfPutMBParams() to prevent bad values */
-#define GSF_MIN_PARAM   -999999
 
 /* JSB 07/15/99 Added these macros to support new gsfGetSwathBathyArrayMinMax function */
 #define GSF_U_CHAR_MIN            (0.0)
@@ -244,8 +241,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
 
   /* Clear the gsfError value each time a new file is opened */
   gsfError = 0;
-  /* Make sure we don't inadvertently send a valid handle back */
-  *handle = 0;
 
   /* get the desired file access mode */
   switch (mode)
@@ -344,7 +339,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
   {
     gsfError = GSF_SETVBUF_ERROR;
     gsfClose ((int) *handle);
-    *handle = 0;
     return(-1);
   }
 
@@ -353,7 +347,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
   {
     gsfError = GSF_READ_ERROR;
     gsfClose ((int) *handle);
-    *handle = 0;
     return(-1);
   }
   gsfFileTable[fileTableIndex].file_size = (int) stat_buf.st_size;
@@ -381,7 +374,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
     {
       gsfError = GSF_FLUSH_ERROR;
       gsfClose ((int) *handle);
-      *handle = 0;
       return(-1);
     }
   }
@@ -396,7 +388,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
       {
         gsfError = GSF_FILE_SEEK_ERROR;
         gsfClose ((int) *handle);
-        *handle = 0;
         return(-1);
       }
     }
@@ -405,17 +396,22 @@ gsfOpen(const char *filename, const int mode, int *handle)
     /* JSB 04/05/00 Updated to return correct error code */
     if (headerSize < 0)
     {
-      gsfError = GSF_HEADER_RECORD_DECODE_FAILED;
-      gsfClose (*handle);
+      fclose(fp);
+      numOpenFiles--;
       *handle = 0;
+      gsfFileTable[fileTableIndex].occupied = 0;
+      memset(&gsfFileTable[fileTableIndex].rec.header, 0, sizeof(gsfFileTable[fileTableIndex].rec.header));
       return(-1);
     }
     /* JSB end of updates from 04/055/00 */
     if (!strstr(gsfFileTable[fileTableIndex].rec.header.version, "GSF-"))
     {
-      gsfError = GSF_UNRECOGNIZED_FILE;
-      gsfClose (*handle);
+      fclose(fp);
+      numOpenFiles--;
       *handle = 0;
+      gsfFileTable[fileTableIndex].occupied = 0;
+      memset(&gsfFileTable[fileTableIndex].rec.header, 0, sizeof(gsfFileTable[fileTableIndex].rec.header));
+      gsfError = GSF_UNRECOGNIZED_FILE;
       return(-1);
     }
     /* If the mode is append seek back to the end of the file */
@@ -425,7 +421,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
       {
         gsfError = GSF_FILE_SEEK_ERROR;
         gsfClose ((int) *handle);
-        *handle = 0;
         return(-1);
       }
     }
@@ -439,7 +434,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
   {
     gsfError = GSF_UNRECOGNIZED_FILE;
     gsfClose ((int) *handle);
-    *handle = 0;
     return(-1);
   }
 
@@ -464,9 +458,7 @@ gsfOpen(const char *filename, const int mode, int *handle)
     if (gsfOpenIndex (filename, *handle, &gsfFileTable[fileTableIndex]) == -1)
     {
       gsfFileTable[fileTableIndex].direct_access = 0;
-      gsfError = GSF_INDEX_FILE_OPEN_ERROR;
       gsfClose ((int) *handle);
-      *handle = 0;
       return(-1);
     }
 
@@ -477,7 +469,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
     {
       gsfError = GSF_FILE_SEEK_ERROR;
       gsfClose ((int) *handle);
-      *handle = 0;
       return(-1);
     }
   }
@@ -516,7 +507,6 @@ gsfOpen(const char *filename, const int mode, int *handle)
     default:
       gsfError = GSF_BAD_ACCESS_MODE;
       gsfClose ((int) *handle);
-      *handle = 0;
       return(-1);
   }
 
@@ -579,8 +569,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
 
     /* Clear the gsfError value each time a new file is opened */
     gsfError = 0;
-    /* Make sure we don't inadvertently send a valid handle back */
-    *handle = 0;
 
     /* get the desired file access mode */
     switch (mode)
@@ -679,7 +667,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
     {
         gsfClose ((int) *handle);
         gsfError = GSF_SETVBUF_ERROR;
-        *handle = 0;
         return (-1);
     }
 
@@ -687,8 +674,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
     if (stat (filename, &stat_buf))
     {
         gsfError = GSF_READ_ERROR;
-        gsfClose (*handle);
-        *handle = 0;
         return(-1);
     }
     gsfFileTable[fileTableIndex].file_size = (int) stat_buf.st_size;
@@ -715,8 +700,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
         if (fflush (gsfFileTable[fileTableIndex].fp))
         {
             gsfError = GSF_FLUSH_ERROR;
-            gsfClose (*handle);
-            *handle = 0;
             return(-1);
         }
     }
@@ -730,8 +713,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
             if (fseek(gsfFileTable[fileTableIndex].fp, 0, SEEK_SET))
             {
                 gsfError = GSF_FILE_SEEK_ERROR;
-                gsfClose (*handle);
-                *handle = 0;
                 return (-1);
             }
         }
@@ -740,17 +721,22 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
         /* JSB 04/05/00 Updated to return correct error code */
         if (headerSize < 0)
         {
-            gsfError = GSF_HEADER_RECORD_DECODE_FAILED;
-            gsfClose (*handle);
+            fclose(fp);
+            numOpenFiles--;
             *handle = 0;
+            gsfFileTable[fileTableIndex].occupied = 0;
+            memset(&gsfFileTable[fileTableIndex].rec.header, 0, sizeof(gsfFileTable[fileTableIndex].rec.header));
             return (-1);
         }
         /* JSB end of updates from 04/055/00 */
         if (!strstr(gsfFileTable[fileTableIndex].rec.header.version, "GSF-"))
         {
-            gsfError = GSF_UNRECOGNIZED_FILE;
-            gsfClose (*handle);
+            fclose(fp);
+            numOpenFiles--;
             *handle = 0;
+            gsfFileTable[fileTableIndex].occupied = 0;
+            memset(&gsfFileTable[fileTableIndex].rec.header, 0, sizeof(gsfFileTable[fileTableIndex].rec.header));
+            gsfError = GSF_UNRECOGNIZED_FILE;
             return (-1);
         }
         /* If the mode is append seek back to the end of the file */
@@ -759,8 +745,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
             if (fseek(gsfFileTable[fileTableIndex].fp, 0, SEEK_END))
             {
                 gsfError = GSF_FILE_SEEK_ERROR;
-                gsfClose (*handle);
-                *handle = 0;
                 return (-1);
             }
         }
@@ -773,8 +757,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
     if (ret != 2)
     {
         gsfError = GSF_UNRECOGNIZED_FILE;
-        gsfClose (*handle);
-        *handle = 0;
         return (-1);
     }
 
@@ -799,9 +781,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
         if (gsfOpenIndex (filename, *handle, &gsfFileTable[fileTableIndex]) == -1)
         {
             gsfFileTable[fileTableIndex].direct_access = 0;
-            gsfError = GSF_INDEX_FILE_OPEN_ERROR;
-            gsfClose (*handle);
-            *handle = 0;
             return (-1);
         }
 
@@ -811,8 +790,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
         if (fseek(gsfFileTable[fileTableIndex].fp, headerSize, SEEK_SET))
         {
             gsfError = GSF_FILE_SEEK_ERROR;
-            gsfClose (*handle);
-            *handle = 0;
             return (-1);
         }
     }
@@ -850,8 +827,6 @@ gsfOpenBuffered(const char *filename, const int mode, int *handle, int buf_size)
 
         default:
             gsfError = GSF_BAD_ACCESS_MODE;
-            gsfClose (*handle);
-            *handle = 0;
             return (-1);
     }
 
@@ -1188,12 +1163,6 @@ gsfUnpackStream (int handle, int desiredRecord, gsfDataID *dataID, gsfRecords *r
     unsigned char  *dptr = streamBuff;
     gsfuLong        ckSum;
 
-    if ((handle < 1) || (handle > GSF_MAX_OPEN_FILES))
-    {
-        gsfError = GSF_BAD_FILE_HANDLE;
-        return (-1);
-    }
-
     /* This loop will read one record at a time until the record type
      * desired by the caller is found.
      */
@@ -1232,11 +1201,7 @@ gsfUnpackStream (int handle, int desiredRecord, gsfDataID *dataID, gsfRecords *r
                 fseek (gsfFileTable[handle - 1].fp,
                        gsfFileTable[handle - 1].previous_record,
                        SEEK_SET);
-                /* if anything was read, that's a different error code than nothing read */
-                if (readStat == 0)
-                    gsfError = GSF_READ_TO_END_OF_FILE;
-                else
-                    gsfError = GSF_PARTIAL_RECORD_AT_END_OF_FILE;
+                gsfError = GSF_READ_TO_END_OF_FILE;
                 return (-1);
             }
             gsfError = GSF_READ_ERROR;
@@ -1342,11 +1307,7 @@ gsfUnpackStream (int handle, int desiredRecord, gsfDataID *dataID, gsfRecords *r
                     fseek (gsfFileTable[handle - 1].fp,
                           gsfFileTable[handle - 1].previous_record,
                           SEEK_SET);
-                    /* if anything was read, that's a different error code than nothing read */
-                    if (readStat == 0)
-                        gsfError = GSF_READ_TO_END_OF_FILE;
-                    else
-                        gsfError = GSF_PARTIAL_RECORD_AT_END_OF_FILE;
+                    gsfError = GSF_READ_TO_END_OF_FILE;
                     return (-1);
                 }
                 gsfError = GSF_READ_ERROR;
@@ -2753,10 +2714,6 @@ gsfStringError(void)
             ptr = "GSF Failed to open temporary file for index creation";
             break;
 
-        case GSF_PARTIAL_RECORD_AT_END_OF_FILE:
-            ptr = "GSF corrupt/partial record at the end of the file";
-            break;
-
         default:
             ptr = "GSF unknown error";
             break;
@@ -2796,12 +2753,6 @@ gsfIndexTime(int handle, int record_type, int record_number, time_t * sec, long 
     long            addr;
     int             offset;
     INDEX_REC       index_rec;
-
-    if ((handle < 1) || (handle > GSF_MAX_OPEN_FILES))
-    {
-        gsfError = GSF_BAD_FILE_HANDLE;
-        return (-1);
-    }
 
     /* Check the record_types to see if the requested type is available */
     if (gsfFileTable[handle - 1].index_data.record_type[record_type] == -1)
@@ -4028,12 +3979,6 @@ gsfSetParam(int handle, int index, char *val, gsfRecords *rec)
     int             len;
     char           *ptr;
 
-    if ((handle < 1) || (handle > GSF_MAX_OPEN_FILES))
-    {
-        gsfError = GSF_BAD_FILE_HANDLE;
-        return (-1);
-    }
-
     len = strlen (val);
     ptr = gsfFileTable[handle-1].rec.process_parameters.param[index];
     if (ptr == (char *) NULL)
@@ -4110,12 +4055,6 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
     char            temp2[64];
     int             ret;
     int             number_parameters = 0;
-
-    if ((handle < 1) || (handle > GSF_MAX_OPEN_FILES))
-    {
-        gsfError = GSF_BAD_FILE_HANDLE;
-        return (-1);
-    }
 
     /* If the file is open update, we do not want to allow a write with 
      * a larger number of parameters than currently exist.
@@ -4319,49 +4258,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "DRAFT_TO_APPLY=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.draft[0] > GSF_MIN_PARAM) && (p->to_apply.draft[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "DRAFT_TO_APPLY=%+06.2f",
                 p->to_apply.draft[0]);
-        }
-        else
-        {
-            gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-            return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->to_apply.draft[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "DRAFT_TO_APPLY=%s,",
+            sprintf(temp, "DRAFT_TO_APPLY=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.draft[0] > GSF_MIN_PARAM) && (p->to_apply.draft[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "DRAFT_TO_APPLY=%+06.2f,",
-                p->to_apply.draft[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "DRAFT_TO_APPLY=%+06.2f,%+06.2f",
+                p->to_apply.draft[0],
+                p->to_apply.draft[1]);
         }
-
-        if (p->to_apply.draft[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-      	    sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.draft[1] > GSF_MIN_PARAM) && (p->to_apply.draft[1] < GSF_MAX_PARAM))
-        {
-      	    sprintf (temp2, "%+06.2f", p->to_apply.draft[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -4379,48 +4295,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "PITCH_TO_APPLY=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.pitch_bias[0] > GSF_MIN_PARAM) && (p->to_apply.pitch_bias[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "PITCH_TO_APPLY=%+06.2f",
                 p->to_apply.pitch_bias[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->to_apply.pitch_bias[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "PITCH_TO_APPLY=%s,",
+            sprintf(temp, "PITCH_TO_APPLY=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.pitch_bias[0] > GSF_MIN_PARAM) && (p->to_apply.pitch_bias[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "PITCH_TO_APPLY=%+06.2f,",
-                p->to_apply.pitch_bias[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "PITCH_TO_APPLY=%+06.2f,%+06.2f",
+                p->to_apply.pitch_bias[0],
+                p->to_apply.pitch_bias[1]);
         }
-        if (p->to_apply.pitch_bias[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-       	    sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.pitch_bias[1] > GSF_MIN_PARAM) && (p->to_apply.pitch_bias[1] < GSF_MAX_PARAM))
-        {
-      	    sprintf (temp2, "%+06.2f", p->to_apply.pitch_bias[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -4438,48 +4332,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "ROLL_TO_APPLY=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.roll_bias[0] > GSF_MIN_PARAM) && (p->to_apply.roll_bias[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "ROLL_TO_APPLY=%+06.2f",
                 p->to_apply.roll_bias[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->to_apply.roll_bias[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "ROLL_TO_APPLY=%s,",
+            sprintf(temp, "ROLL_TO_APPLY=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.roll_bias[0] > GSF_MIN_PARAM) && (p->to_apply.roll_bias[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "ROLL_TO_APPLY=%+06.2f,",
-                p->to_apply.roll_bias[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "ROLL_TO_APPLY=%+06.2f,%+06.2f",
+                p->to_apply.roll_bias[0],
+                p->to_apply.roll_bias[1]);
         }
-        if (p->to_apply.roll_bias[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.roll_bias[1] > GSF_MIN_PARAM) && (p->to_apply.roll_bias[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->to_apply.roll_bias[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -4497,48 +4369,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "GYRO_TO_APPLY=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.gyro_bias[0] > GSF_MIN_PARAM) && (p->to_apply.gyro_bias[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "GYRO_TO_APPLY=%+06.2f",
                 p->to_apply.gyro_bias[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->to_apply.gyro_bias[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "GYRO_TO_APPLY=%s,",
+            sprintf(temp, "GYRO_TO_APPLY=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.gyro_bias[0] > GSF_MIN_PARAM) && (p->to_apply.gyro_bias[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "GYRO_TO_APPLY=%+06.2f,",
-                p->to_apply.gyro_bias[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "GYRO_TO_APPLY=%+06.2f,%+06.2f",
+                p->to_apply.gyro_bias[0],
+                p->to_apply.gyro_bias[1]);
         }
-        if (p->to_apply.gyro_bias[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.gyro_bias[1] > GSF_MIN_PARAM) && (p->to_apply.gyro_bias[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->to_apply.gyro_bias[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -4556,47 +4406,31 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s,",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->to_apply.position_x_offset > GSF_MIN_PARAM) && (p->to_apply.position_x_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->to_apply.position_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->to_apply.position_y_offset == GSF_UNKNOWN_PARAM_VALUE)
     {
         sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->to_apply.position_y_offset > GSF_MIN_PARAM) && (p->to_apply.position_y_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->to_apply.position_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->to_apply.position_z_offset == GSF_UNKNOWN_PARAM_VALUE)
     {
         sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->to_apply.position_z_offset > GSF_MIN_PARAM) && (p->to_apply.position_z_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f",
             p->to_apply.position_z_offset);
     }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-
     strcat(temp, temp2);
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -4614,45 +4448,30 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s,",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->to_apply.antenna_x_offset > GSF_MIN_PARAM) && (p->to_apply.antenna_x_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->to_apply.antenna_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->to_apply.antenna_y_offset == GSF_UNKNOWN_PARAM_VALUE)
     {
         sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->to_apply.antenna_y_offset > GSF_MIN_PARAM) && (p->to_apply.antenna_y_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->to_apply.antenna_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->to_apply.antenna_z_offset == GSF_UNKNOWN_PARAM_VALUE)
     {
         sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->to_apply.antenna_z_offset > GSF_MIN_PARAM) && (p->to_apply.antenna_z_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f",
             p->to_apply.antenna_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
@@ -4673,15 +4492,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_x_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_x_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->to_apply.transducer_x_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->to_apply.transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
@@ -4689,30 +4503,20 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_y_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_y_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->to_apply.transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->to_apply.transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
             sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_z_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_z_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f",
                 p->to_apply.transducer_z_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
     }
@@ -4723,15 +4527,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_x_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_x_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->to_apply.transducer_x_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->to_apply.transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
@@ -4739,15 +4538,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_y_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_y_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->to_apply.transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->to_apply.transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
@@ -4755,15 +4549,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_z_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_z_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->to_apply.transducer_z_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->to_apply.transducer_x_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
@@ -4771,15 +4560,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_x_offset[1] > GSF_MIN_PARAM) && (p->to_apply.transducer_x_offset[1] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->to_apply.transducer_x_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->to_apply.transducer_y_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
@@ -4787,15 +4571,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_y_offset[1] > GSF_MIN_PARAM) && (p->to_apply.transducer_y_offset[1] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->to_apply.transducer_y_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->to_apply.transducer_z_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
@@ -4803,15 +4582,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_z_offset[1] > GSF_MIN_PARAM) && (p->to_apply.transducer_z_offset[1] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f",
                 p->to_apply.transducer_z_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
     }
@@ -4831,47 +4605,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "TRANSDUCER_PITCH_OFFSET_TO_APPLY=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_pitch_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "TRANSDUCER_PITCH_OFFSET_TO_APPLY=%+06.2f",
                 p->to_apply.transducer_pitch_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->to_apply.transducer_pitch_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "TRANSDUCER_PITCH_OFFSET_TO_APPLY=%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_pitch_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "TRANSDUCER_PITCH_OFFSET_TO_APPLY=%+06.2f,",
-                p->to_apply.transducer_pitch_offset[0]);
+            sprintf(temp, "TRANSDUCER_PITCH_OFFSET_TO_APPLY=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "TRANSDUCER_PITCH_OFFSET_TO_APPLY=%+06.2f,%+06.2f",
+                p->to_apply.transducer_pitch_offset[0],
+                p->to_apply.transducer_pitch_offset[1]);
         }
-        if (p->to_apply.transducer_pitch_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.transducer_pitch_offset[1] > GSF_MIN_PARAM) && (p->to_apply.transducer_pitch_offset[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->to_apply.transducer_pitch_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -4889,47 +4642,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "TRANSDUCER_ROLL_OFFSET_TO_APPLY=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_roll_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "TRANSDUCER_ROLL_OFFSET_TO_APPLY=%+06.2f",
                 p->to_apply.transducer_roll_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->to_apply.transducer_roll_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "TRANSDUCER_ROLL_OFFSET_TO_APPLY=%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_roll_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "TRANSDUCER_ROLL_OFFSET_TO_APPLY=%+06.2f,",
-                p->to_apply.transducer_roll_offset[0]);
+            sprintf(temp, "TRANSDUCER_ROLL_OFFSET_TO_APPLY=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "TRANSDUCER_ROLL_OFFSET_TO_APPLY=%+06.2f,%+06.2f",
+                p->to_apply.transducer_roll_offset[0],
+                p->to_apply.transducer_roll_offset[1]);
         }
-        if (p->to_apply.transducer_roll_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.transducer_roll_offset[1] > GSF_MIN_PARAM) && (p->to_apply.transducer_roll_offset[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->to_apply.transducer_roll_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -4947,689 +4679,241 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "TRANSDUCER_HEADING_OFFSET_TO_APPLY=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_heading_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "TRANSDUCER_HEADING_OFFSET_TO_APPLY=%+06.2f",
                 p->to_apply.transducer_heading_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->to_apply.transducer_heading_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "TRANSDUCER_HEADING_OFFSET_TO_APPLY=%s,",
+            sprintf(temp, "TRANSDUCER_HEADING_OFFSET_TO_APPLY=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->to_apply.transducer_heading_offset[0] < GSF_MAX_PARAM))
+        else
         {
-            sprintf(temp, "TRANSDUCER_HEADING_OFFSET_TO_APPLY=%+06.2f,",
-                p->to_apply.transducer_heading_offset[0]);
+            sprintf(temp, "TRANSDUCER_HEADING_OFFSET_TO_APPLY=%+06.2f,%+06.2f",
+                p->to_apply.transducer_heading_offset[0],
+                p->to_apply.transducer_heading_offset[1]);
+        }
+    }
+    ret = gsfSetParam(handle, number_parameters++, temp, rec);
+    if (ret)
+    {
+        return(-1);
+    }
+
+    if (rec->process_parameters.number_parameters != 21)
+    {
+        /* The MRU_PITCH_TO_APPLY parameter is place holder for a motion
+         * sensor pitch bias value which is known but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->to_apply.mru_pitch_bias == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp, "MRU_PITCH_TO_APPLY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "MRU_PITCH_TO_APPLY=%+06.2f",
+                p->to_apply.mru_pitch_bias);
         }
-        if (p->to_apply.transducer_heading_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
         {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
+            return(-1);
         }
-        else if ((p->to_apply.transducer_heading_offset[1] > GSF_MIN_PARAM) && (p->to_apply.transducer_heading_offset[1] < GSF_MAX_PARAM))
+
+
+        /* The MRU_ROLL_TO_APPLY parameter is place holder for a motion
+         * sensor roll bias value which is known but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->to_apply.mru_roll_bias == GSF_UNKNOWN_PARAM_VALUE)
         {
-        	sprintf (temp2, "%+06.2f", p->to_apply.transducer_heading_offset[1]);
+            sprintf(temp, "MRU_ROLL_TO_APPLY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "MRU_ROLL_TO_APPLY=%+06.2f",
+                p->to_apply.mru_roll_bias);
         }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
 
-    /* The MRU_PITCH_TO_APPLY parameter is place holder for a motion
-     * sensor pitch bias value which is known but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->to_apply.mru_pitch_bias == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "MRU_PITCH_TO_APPLY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.mru_pitch_bias > GSF_MIN_PARAM) && (p->to_apply.mru_pitch_bias < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "MRU_PITCH_TO_APPLY=%+06.2f",
-            p->to_apply.mru_pitch_bias);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
+        /* The MRU_HEADING_TO_APPLY parameter is place holder for a motion
+         * sensor heading bias value which is known but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->to_apply.mru_heading_bias == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp, "MRU_HEADING_TO_APPLY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp, "MRU_HEADING_TO_APPLY=%+06.2f",
+                p->to_apply.mru_heading_bias);
+        }
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
 
-    /* The MRU_ROLL_TO_APPLY parameter is place holder for a motion
-     * sensor roll bias value which is known but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->to_apply.mru_roll_bias == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "MRU_ROLL_TO_APPLY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.mru_roll_bias > GSF_MIN_PARAM) && (p->to_apply.mru_roll_bias < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "MRU_ROLL_TO_APPLY=%+06.2f",
-            p->to_apply.mru_roll_bias);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The MRU_HEADING_TO_APPLY parameter is place holder for a motion
-     * sensor heading bias value which is known but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->to_apply.mru_heading_bias == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "MRU_HEADING_TO_APPLY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.mru_heading_bias > GSF_MIN_PARAM) && (p->to_apply.mru_heading_bias < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "MRU_HEADING_TO_APPLY=%+06.2f",
-            p->to_apply.mru_heading_bias);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The MRU_OFFSET_TO_APPLY parameter is place holder for a mru
-     *  offset which is known, but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    sprintf(temp, "MRU_OFFSET_TO_APPLY=");
-    if (p->to_apply.mru_x_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.mru_x_offset > GSF_MIN_PARAM) && (p->to_apply.mru_x_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->to_apply.mru_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->to_apply.mru_y_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.mru_y_offset > GSF_MIN_PARAM) && (p->to_apply.mru_y_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->to_apply.mru_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->to_apply.mru_z_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.mru_z_offset > GSF_MIN_PARAM) && (p->to_apply.mru_z_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f",
-            p->to_apply.mru_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The CENTER_OF_ROTATION_OFFSET_TO_APPLY parameter is place holder for a mru
-     *  offset which is known, but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    sprintf(temp, "CENTER_OF_ROTATION_OFFSET_TO_APPLY=");
-    if (p->to_apply.center_of_rotation_x_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.center_of_rotation_x_offset > GSF_MIN_PARAM) && (p->to_apply.center_of_rotation_x_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->to_apply.center_of_rotation_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->to_apply.center_of_rotation_y_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.center_of_rotation_y_offset > GSF_MIN_PARAM) && (p->to_apply.center_of_rotation_y_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->to_apply.center_of_rotation_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->to_apply.center_of_rotation_z_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.center_of_rotation_z_offset > GSF_MIN_PARAM) && (p->to_apply.center_of_rotation_z_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f",
-            p->to_apply.center_of_rotation_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The POSITION_LATENCY_TO_APPLY parameter is a place holder for a navigation
-     * sensor latency value which is known but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->to_apply.position_latency == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "POSITION_LATENCY_TO_APPLY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.position_latency > GSF_MIN_PARAM) && (p->to_apply.position_latency < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "POSITION_LATENCY_TO_APPLY=%+06.3f",
-            p->to_apply.position_latency);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The ATTITUDE_LATENCY_TO_APPLY parameter is a place holder for an attitude
-     * sensor latency value which is known but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->to_apply.attitude_latency == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "ATTITUDE_LATENCY_TO_APPLY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.attitude_latency > GSF_MIN_PARAM) && (p->to_apply.attitude_latency < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "ATTITUDE_LATENCY_TO_APPLY=%+06.3f",
-            p->to_apply.attitude_latency);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The DEPTH_SENSOR_LATENCY_TO_APPLY parameter is a place holder for a depth
-     *  sensor latency value which is known but not yet applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->to_apply.depth_sensor_latency == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "DEPTH_SENSOR_LATENCY_TO_APPLY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.depth_sensor_latency > GSF_MIN_PARAM) && (p->to_apply.depth_sensor_latency < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "DEPTH_SENSOR_LATENCY_TO_APPLY=%+06.3f",
-            p->to_apply.depth_sensor_latency);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-        
-    /* The DEPTH_SENSOR_OFFSET_TO_APPLY parameter is place holder for a depth
-     *  sensor offset which is known, but not yet applied.
-     */
-    if (p->to_apply.depth_sensor_x_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "DEPTH_SENSOR_OFFSET_TO_APPLY=%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.depth_sensor_x_offset > GSF_MIN_PARAM) && (p->to_apply.depth_sensor_x_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "DEPTH_SENSOR_OFFSET_TO_APPLY=%+06.2f,",
-        		p->to_apply.depth_sensor_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    if (p->to_apply.depth_sensor_y_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.depth_sensor_y_offset > GSF_MIN_PARAM) && (p->to_apply.depth_sensor_y_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->to_apply.depth_sensor_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat (temp, temp2);
-    if (p->to_apply.depth_sensor_z_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->to_apply.depth_sensor_z_offset > GSF_MIN_PARAM) && (p->to_apply.depth_sensor_z_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f", p->to_apply.depth_sensor_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat (temp, temp2);
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-       
-    /* The RX_TRANSDUCER_OFFSET_TO_APPLY parameter is place holder for a
-     * receiver position offset which is known, but not yet applied.
-     */
-    sprintf (temp, "RX_TRANSDUCER_OFFSET_TO_APPLY=");
-    if (numArrays == 1)
-    {
-        if (p->to_apply.rx_transducer_x_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        /* The MRU_OFFSET_TO_APPLY parameter is place holder for a mru
+         *  offset which is known, but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        sprintf(temp, "MRU_OFFSET_TO_APPLY=");
+        if (p->to_apply.mru_x_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s,",
+                GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp2, "%+06.2f,",
+                p->to_apply.mru_x_offset);
+        }
+        strcat(temp, temp2);
+        if (p->to_apply.mru_y_offset == GSF_UNKNOWN_PARAM_VALUE)
         {
             sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.rx_transducer_x_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_x_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_x_offset[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp2, "%+06.2f,",
+                p->to_apply.mru_y_offset);
         }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_y_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_y_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        strcat(temp, temp2);
+        if (p->to_apply.mru_z_offset == GSF_UNKNOWN_PARAM_VALUE)
         {
             sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.rx_transducer_z_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_z_offset[0] < GSF_MAX_PARAM))
+        else
         {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_z_offset[0]);
+            sprintf(temp2, "%+06.2f",
+                p->to_apply.mru_z_offset);
+        }
+        strcat(temp, temp2);
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
+
+        /* The CENTER_OF_ROTATION_OFFSET_TO_APPLY parameter is place holder for a mru
+         *  offset which is known, but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        sprintf(temp, "CENTER_OF_ROTATION_OFFSET_TO_APPLY=");
+        if (p->to_apply.center_of_rotation_x_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s,",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp2, "%+06.2f,",
+                p->to_apply.center_of_rotation_x_offset);
         }
-        strcat (temp, temp2);
-    }
-    else if (numArrays == 2)
-    {
-        if (p->to_apply.rx_transducer_x_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        strcat(temp, temp2);
+        if (p->to_apply.center_of_rotation_y_offset == GSF_UNKNOWN_PARAM_VALUE)
         {
             sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.rx_transducer_x_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_x_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_x_offset[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp2, "%+06.2f,",
+                p->to_apply.center_of_rotation_y_offset);
         }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_y_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_y_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_z_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_z_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_z_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_x_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_x_offset[1] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_x_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_x_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_y_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_y_offset[1] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_y_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_y_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_z_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
+        strcat(temp, temp2);
+        if (p->to_apply.center_of_rotation_z_offset == GSF_UNKNOWN_PARAM_VALUE)
         {
             sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->to_apply.rx_transducer_z_offset[1] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_z_offset[1] < GSF_MAX_PARAM))
+        else
         {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_z_offset[1]);
+            sprintf(temp2, "%+06.2f",
+                p->to_apply.center_of_rotation_z_offset);
+        }
+        strcat(temp, temp2);
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
+
+        /* The POSITION_LATENCY_TO_APPLY parameter is a place holder for a navigation
+         * sensor latency value which is known but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->to_apply.position_latency == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp, "POSITION_LATENCY_TO_APPLY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "POSITION_LATENCY_TO_APPLY=%+06.3f",
+                p->to_apply.position_latency);
         }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
+
+        /* The ATTITUDE_LATENCY_TO_APPLY parameter is a place holder for an attitude
+         * sensor latency value which is known but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->to_apply.attitude_latency == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp, "ATTITUDE_LATENCY_TO_APPLY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp, "ATTITUDE_LATENCY_TO_APPLY=%+06.3f",
+                p->to_apply.attitude_latency);
+        }
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
+
+        /* The DEPTH_SENSOR_LATENCY_TO_APPLY parameter is a place holder for a depth 
+         *  sensor latency value which is known but not yet applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->to_apply.depth_sensor_latency == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp, "DEPTH_SENSOR_LATENCY_TO_APPLY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp, "DEPTH_SENSOR_LATENCY_TO_APPLY=%+06.3f",
+                p->to_apply.depth_sensor_latency);
+        }
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
     }
 
-    /* The RX_TRANSDUCER_PITCH_TO_APPLY parameter is place holder for a
-     * receiver pitch offset which is known, but not yet applied.
-     */
-    sprintf (temp, "RX_TRANSDUCER_PITCH_OFFSET_TO_APPLY=");
-    if (numArrays == 1)
-    {
-        if (p->to_apply.rx_transducer_pitch_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_pitch_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_pitch_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    else if (numArrays == 2)
-    {
-        if (p->to_apply.rx_transducer_pitch_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_pitch_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_pitch_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_pitch_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_pitch_offset[1] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_pitch_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_pitch_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The RX_TRANSDUCER_ROLL_TO_APPLY parameter is place holder for a
-     * receiver roll offset which is known, but not yet applied.
-     */
-    sprintf (temp, "RX_TRANSDUCER_ROLL_OFFSET_TO_APPLY=");
-    if (numArrays == 1)
-    {
-        if (p->to_apply.rx_transducer_roll_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_roll_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_roll_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    else if (numArrays == 2)
-    {
-        if (p->to_apply.rx_transducer_roll_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_roll_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_roll_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_roll_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_roll_offset[1] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_roll_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_roll_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The RX_TRANSDUCER_HEADING_TO_APPLY parameter is place holder for a
-     * receiver heading offset which is known, but not yet applied.
-     */
-    sprintf (temp, "RX_TRANSDUCER_HEADING_OFFSET_TO_APPLY=");
-    if (numArrays == 1)
-    {
-        if (p->to_apply.rx_transducer_heading_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_heading_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_heading_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    else if (numArrays == 2)
-    {
-        if (p->to_apply.rx_transducer_heading_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_heading_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->to_apply.rx_transducer_heading_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->to_apply.rx_transducer_heading_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->to_apply.rx_transducer_heading_offset[1] > GSF_MIN_PARAM) && (p->to_apply.rx_transducer_heading_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->to_apply.rx_transducer_heading_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /***** end of "to apply" parameters, on to "applied" ****/    
-    
     /* The APPLIED_DRAFT parameter defines the transducer draft value
      * previously applied to the depths.
      */
@@ -5640,46 +4924,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "APPLIED_DRAFT=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.draft[0] > GSF_MIN_PARAM) && (p->applied.draft[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "APPLIED_DRAFT=%+06.2f",
                 p->applied.draft[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->applied.draft[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_DRAFT=%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.draft[0] > GSF_MIN_PARAM) && (p->applied.draft[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "APPLIED_DRAFT=%+06.2f,", p->applied.draft[0]);
+            sprintf(temp, "APPLIED_DRAFT=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_DRAFT=%+06.2f,%+06.2f",
+                p->applied.draft[0],
+                p->applied.draft[1]);
         }
-        if (p->applied.draft[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.draft[1] > GSF_MIN_PARAM) && (p->applied.draft[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->applied.draft[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -5694,49 +4958,29 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
     {
         if (p->applied.pitch_bias[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_PITCH_BIAS=%s", 
+            sprintf(temp, "APPLIED_PITCH_BIAS=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.pitch_bias[0] > GSF_MIN_PARAM) && (p->applied.pitch_bias[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "APPLIED_PITCH_BIAS=%+06.2f", 
-                p->applied.pitch_bias[0]);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_PITCH_BIAS=%+06.2f",
+                p->applied.pitch_bias[0]);
         }
     }
     else if (numArrays == 2)
     {
         if (p->applied.pitch_bias[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_PITCH_BIAS=%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.pitch_bias[0] > GSF_MIN_PARAM) && (p->applied.pitch_bias[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "APPLIED_PITCH_BIAS=%+06.2f,", p->applied.pitch_bias[0]);
+            sprintf(temp, "APPLIED_PITCH_BIAS=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_PITCH_BIAS=%+06.2f,%+06.2f",
+                p->applied.pitch_bias[0],
+                p->applied.pitch_bias[1]);
         }
-        if (p->applied.pitch_bias[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.pitch_bias[1] > GSF_MIN_PARAM) && (p->applied.pitch_bias[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->applied.pitch_bias[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -5754,46 +4998,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "APPLIED_ROLL_BIAS=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.roll_bias[0] > GSF_MIN_PARAM) && (p->applied.roll_bias[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "APPLIED_ROLL_BIAS=%+06.2f",
                 p->applied.roll_bias[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->applied.roll_bias[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_ROLL_BIAS=%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.roll_bias[0] > GSF_MIN_PARAM) && (p->applied.roll_bias[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "APPLIED_ROLL_BIAS=%+06.2f,", p->applied.roll_bias[0]);
+            sprintf(temp, "APPLIED_ROLL_BIAS=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_ROLL_BIAS=%+06.2f,%+06.2f",
+                p->applied.roll_bias[0],
+                p->applied.roll_bias[1]);
         }
-        if (p->applied.roll_bias[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.roll_bias[1] > GSF_MIN_PARAM) && (p->applied.roll_bias[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->applied.roll_bias[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -5811,46 +5035,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "APPLIED_GYRO_BIAS=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.gyro_bias[0] > GSF_MIN_PARAM) && (p->applied.gyro_bias[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "APPLIED_GYRO_BIAS=%+06.2f",
                 p->applied.gyro_bias[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->applied.gyro_bias[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_GYRO_BIAS=%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.gyro_bias[0] > GSF_MIN_PARAM) && (p->applied.gyro_bias[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "APPLIED_GYRO_BIAS=%+06.2f,", p->applied.gyro_bias[0]);
+            sprintf(temp, "APPLIED_GYRO_BIAS=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_GYRO_BIAS=%+06.2f,%+06.2f",
+                p->applied.gyro_bias[0],
+                p->applied.gyro_bias[1]);
         }
-        if (p->applied.gyro_bias[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.gyro_bias[1] > GSF_MIN_PARAM) && (p->applied.gyro_bias[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->applied.gyro_bias[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -5868,15 +5072,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s,",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->applied.position_x_offset > GSF_MIN_PARAM) && (p->applied.position_x_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->applied.position_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->applied.position_y_offset == GSF_UNKNOWN_PARAM_VALUE)
@@ -5884,15 +5083,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s,",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->applied.position_y_offset > GSF_MIN_PARAM) && (p->applied.position_y_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->applied.position_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->applied.position_z_offset == GSF_UNKNOWN_PARAM_VALUE)
@@ -5900,15 +5094,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->applied.position_z_offset > GSF_MIN_PARAM) && (p->applied.position_z_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f",
             p->applied.position_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
@@ -5927,15 +5116,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s,",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->applied.antenna_x_offset > GSF_MIN_PARAM) && (p->applied.antenna_x_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->applied.antenna_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->applied.antenna_y_offset == GSF_UNKNOWN_PARAM_VALUE)
@@ -5943,15 +5127,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s,",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->applied.antenna_y_offset > GSF_MIN_PARAM) && (p->applied.antenna_y_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f,",
             p->applied.antenna_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     if (p->applied.antenna_z_offset == GSF_UNKNOWN_PARAM_VALUE)
@@ -5959,15 +5138,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
         sprintf(temp2, "%s",
             GSF_UNKNOWN_PARAM_TEXT);
     }
-    else if ((p->applied.antenna_z_offset > GSF_MIN_PARAM) && (p->applied.antenna_z_offset < GSF_MAX_PARAM))
+    else
     {
         sprintf(temp2, "%+06.2f",
             p->applied.antenna_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
     }
     strcat(temp, temp2);
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
@@ -5975,6 +5149,7 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
     {
         return(-1);
     }
+
 
     /* The APPLIED_TRANSDUCER_OFFSET parameter defines the x,y,z offsets
      * in ship coordinates to which have been applied to refer the x,y,z
@@ -5989,15 +5164,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_x_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_x_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->applied.transducer_x_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->applied.transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
@@ -6005,15 +5175,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_y_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_y_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->applied.transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->applied.transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
@@ -6021,15 +5186,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_z_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_z_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f",
                 p->applied.transducer_z_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
     }
@@ -6040,15 +5200,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_x_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_x_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->applied.transducer_x_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->applied.transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
@@ -6056,15 +5211,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_y_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_y_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->applied.transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->applied.transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
@@ -6072,15 +5222,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_z_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_z_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->applied.transducer_z_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->applied.transducer_x_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
@@ -6088,15 +5233,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_x_offset[1] > GSF_MIN_PARAM) && (p->applied.transducer_x_offset[1] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->applied.transducer_x_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->applied.transducer_y_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
@@ -6104,15 +5244,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s,",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_y_offset[1] > GSF_MIN_PARAM) && (p->applied.transducer_y_offset[1] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f,",
                 p->applied.transducer_y_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
         if (p->applied.transducer_z_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
@@ -6120,15 +5255,10 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp2, "%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_z_offset[1] > GSF_MIN_PARAM) && (p->applied.transducer_z_offset[1] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp2, "%+06.2f",
                 p->applied.transducer_z_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
         strcat(temp, temp2);
     }
@@ -6148,48 +5278,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "APPLIED_TRANSDUCER_PITCH_OFFSET=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_pitch_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "APPLIED_TRANSDUCER_PITCH_OFFSET=%+06.2f",
                 p->applied.transducer_pitch_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->applied.transducer_pitch_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_TRANSDUCER_PITCH_OFFSET=%s,",
+            sprintf(temp, "APPLIED_TRANSDUCER_PITCH_OFFSET=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_pitch_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "APPLIED_TRANSDUCER_PITCH_OFFSET=%+06.2f,",
-                p->applied.transducer_pitch_offset[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_TRANSDUCER_PITCH_OFFSET=%+06.2f,%+06.2f",
+                p->applied.transducer_pitch_offset[0],
+                p->applied.transducer_pitch_offset[1]);
         }
-        if (p->applied.transducer_pitch_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.transducer_pitch_offset[1] > GSF_MIN_PARAM) && (p->applied.transducer_pitch_offset[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->applied.transducer_pitch_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -6207,48 +5315,26 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "APPLIED_TRANSDUCER_ROLL_OFFSET=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_roll_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "APPLIED_TRANSDUCER_ROLL_OFFSET=%+06.2f",
                 p->applied.transducer_roll_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->applied.transducer_roll_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_TRANSDUCER_ROLL_OFFSET=%s,",
+            sprintf(temp, "APPLIED_TRANSDUCER_ROLL_OFFSET=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_roll_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp, "APPLIED_TRANSDUCER_ROLL_OFFSET=%+06.2f,",
-                p->applied.transducer_roll_offset[0]);
-        }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_TRANSDUCER_ROLL_OFFSET=%+06.2f,%+06.2f",
+                p->applied.transducer_roll_offset[0],
+                p->applied.transducer_roll_offset[1]);
         }
-        if (p->applied.transducer_roll_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.transducer_roll_offset[1] > GSF_MIN_PARAM) && (p->applied.transducer_roll_offset[1] < GSF_MAX_PARAM))
-        {
-        	sprintf (temp2, "%+06.2f", p->applied.transducer_roll_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
     }
     ret = gsfSetParam(handle, number_parameters++, temp, rec);
     if (ret)
@@ -6266,687 +5352,241 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
             sprintf(temp, "APPLIED_TRANSDUCER_HEADING_OFFSET=%s",
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_heading_offset[0] < GSF_MAX_PARAM))
+        else
         {
             sprintf(temp, "APPLIED_TRANSDUCER_HEADING_OFFSET=%+06.2f",
                 p->applied.transducer_heading_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
         }
     }
     else if (numArrays == 2)
     {
         if (p->applied.transducer_heading_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp, "APPLIED_TRANSDUCER_HEADING_OFFSET=%s,",
+            sprintf(temp, "APPLIED_TRANSDUCER_HEADING_OFFSET=%s,%s",
+                GSF_UNKNOWN_PARAM_TEXT,
                 GSF_UNKNOWN_PARAM_TEXT);
         }
-        else if ((p->applied.transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->applied.transducer_heading_offset[0] < GSF_MAX_PARAM))
+        else
         {
-            sprintf(temp, "APPLIED_TRANSDUCER_HEADING_OFFSET=%+06.2f,",
-                p->applied.transducer_heading_offset[0]);
+            sprintf(temp, "APPLIED_TRANSDUCER_HEADING_OFFSET=%+06.2f,%+06.2f",
+                p->applied.transducer_heading_offset[0],
+                p->applied.transducer_heading_offset[1]);
+        }
+    }
+    ret = gsfSetParam(handle, number_parameters++, temp, rec);
+    if (ret)
+    {
+        return(-1);
+    }
+
+    if (rec->process_parameters.number_parameters != 21)
+    {
+        /* The APPLIED_MRU_ROLL parameter defines the roll bias previously
+         * applied to the data.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->applied.mru_roll_bias == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp, "APPLIED_MRU_ROLL=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_MRU_ROLL=%+06.2f",
+                p->applied.mru_roll_bias);
         }
-        if (p->applied.transducer_heading_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
         {
-        	sprintf (temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
+            return(-1);
         }
-        else if ((p->applied.transducer_heading_offset[1] > GSF_MIN_PARAM) && (p->applied.transducer_heading_offset[1] < GSF_MAX_PARAM))
+
+        /* The APPLIED_MRU_PITCH parameter defines the pitch bias previously
+         * applied to the data.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->applied.mru_pitch_bias == GSF_UNKNOWN_PARAM_VALUE)
         {
-        	sprintf (temp2, "%+06.2f", p->applied.transducer_heading_offset[1]);
+            sprintf(temp, "APPLIED_MRU_PITCH=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_MRU_PITCH=%+06.2f",
+                p->applied.mru_pitch_bias);
         }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
 
-    /* The APPLIED_MRU_ROLL parameter defines the roll bias previously
-     * applied to the data.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->applied.mru_roll_bias == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "APPLIED_MRU_ROLL=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.mru_roll_bias > GSF_MIN_PARAM) && (p->applied.mru_roll_bias < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "APPLIED_MRU_ROLL=%+06.2f",
-            p->applied.mru_roll_bias);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
+        /* The APPLIED_MRU_HEADING parameter defines the heading bias previously
+         * applied to the data.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->applied.mru_heading_bias == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp, "APPLIED_MRU_HEADING=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp, "APPLIED_MRU_HEADING=%+06.2f",
+                p->applied.mru_heading_bias);
+        }
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
 
-    /* The APPLIED_MRU_PITCH parameter defines the pitch bias previously
-     * applied to the data.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->applied.mru_pitch_bias == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "APPLIED_MRU_PITCH=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.mru_pitch_bias > GSF_MIN_PARAM) && (p->applied.mru_pitch_bias < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "APPLIED_MRU_PITCH=%+06.2f",
-            p->applied.mru_pitch_bias);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
+        /* The APPLIED_MRU_OFFSET parameter defines the x,y,z offsets
+         * in ship coordinates to which have been used to calculate a heave
+         * difference between the motion sensor and the ship reference point.
+         */
+        memset(temp, 0, sizeof(temp));
+        sprintf(temp, "APPLIED_MRU_OFFSET=");
+        if (p->applied.mru_x_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s,",
+                GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp2, "%+06.2f,",
+                p->applied.mru_x_offset);
+        }
+        strcat(temp, temp2);
+        if (p->applied.mru_y_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp2, "%+06.2f,",
+                p->applied.mru_y_offset);
+        }
+        strcat(temp, temp2);
+        if (p->applied.mru_z_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp2, "%+06.2f",
+                p->applied.mru_z_offset);
+        }
+        strcat(temp, temp2);
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
 
-    /* The APPLIED_MRU_HEADING parameter defines the heading bias previously
-     * applied to the data.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->applied.mru_heading_bias == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "APPLIED_MRU_HEADING=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.mru_heading_bias > GSF_MIN_PARAM) && (p->applied.mru_heading_bias < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "APPLIED_MRU_HEADING=%+06.2f",
-            p->applied.mru_heading_bias);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The APPLIED_MRU_OFFSET parameter defines the x,y,z offsets
-     * in ship coordinates to which have been used to calculate a heave
-     * difference between the motion sensor and the ship reference point.
-     */
-    memset(temp, 0, sizeof(temp));
-    sprintf(temp, "APPLIED_MRU_OFFSET=");
-    if (p->applied.mru_x_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.mru_x_offset > GSF_MIN_PARAM) && (p->applied.mru_x_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->applied.mru_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->applied.mru_y_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.mru_y_offset > GSF_MIN_PARAM) && (p->applied.mru_y_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->applied.mru_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->applied.mru_z_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.mru_z_offset > GSF_MIN_PARAM) && (p->applied.mru_z_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f",
-            p->applied.mru_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The APPLIED_CENTER_OF_ROTATION_OFFSET parameter defines the x,y,z offsets
-     * in ship coordinates to which have been used to calculate a heave
-     * difference between the motion sensor and the ship reference point.
-     */
-    memset(temp, 0, sizeof(temp));
-    sprintf(temp, "APPLIED_CENTER_OF_ROTATION_OFFSET=");
-    if (p->applied.center_of_rotation_x_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.center_of_rotation_x_offset > GSF_MIN_PARAM) && (p->applied.center_of_rotation_x_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->applied.center_of_rotation_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->applied.center_of_rotation_y_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.center_of_rotation_y_offset > GSF_MIN_PARAM) && (p->applied.center_of_rotation_y_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f,",
-            p->applied.center_of_rotation_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->applied.center_of_rotation_z_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.center_of_rotation_z_offset > GSF_MIN_PARAM) && (p->applied.center_of_rotation_z_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f",
-            p->applied.center_of_rotation_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-   
-    /* The APPLIED_POSITION_LATENCY parameter defines the navigation
-     * sensor latency value which has already been applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->applied.position_latency == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "APPLIED_POSITION_LATENCY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.position_latency > GSF_MIN_PARAM) && (p->applied.position_latency < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "APPLIED_POSITION_LATENCY=%+06.3f",
-            p->applied.position_latency);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The APPLIED_ATTITUDE_LATENCY parameter defines the attitude
-     * sensor latency value which has already been applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->applied.attitude_latency == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "APPLIED_ATTITUDE_LATENCY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.attitude_latency > GSF_MIN_PARAM) && (p->applied.attitude_latency < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "APPLIED_ATTITUDE_LATENCY=%+06.3f",
-            p->applied.attitude_latency);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The APPLIED_DEPTH_SENSOR_LATENCY parameter defines the depth
-     *  sensor latency value which has already been applied.
-     */
-    memset(temp, 0, sizeof(temp));
-    if (p->applied.depth_sensor_latency == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp, "APPLIED_DEPTH_SENSOR_LATENCY=%s",
-            GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.depth_sensor_latency > GSF_MIN_PARAM) && (p->applied.depth_sensor_latency < GSF_MAX_PARAM))
-    {
-        sprintf(temp, "APPLIED_DEPTH_SENSOR_LATENCY=%+06.3f",
-            p->applied.depth_sensor_latency);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-        
-    /* The APPLIED_DEPTH_SENSOR_OFFSET parameter defines the x,y,z position
-     * offsets that have been applied
-     */
-    sprintf(temp, "APPLIED_DEPTH_SENSOR_OFFSET=");
-    if (p->applied.depth_sensor_x_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf (temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.depth_sensor_x_offset > GSF_MIN_PARAM) && (p->applied.depth_sensor_x_offset < GSF_MAX_PARAM))
-    {
-        sprintf (temp2, "%+06.2f,", p->applied.depth_sensor_x_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat (temp, temp2);
-    if (p->applied.depth_sensor_y_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf (temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.depth_sensor_y_offset > GSF_MIN_PARAM) && (p->applied.depth_sensor_y_offset < GSF_MAX_PARAM))
-    {
-        sprintf (temp2, "%+06.2f,", p->applied.depth_sensor_y_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    if (p->applied.depth_sensor_z_offset == GSF_UNKNOWN_PARAM_VALUE)
-    {
-        sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-    }
-    else if ((p->applied.depth_sensor_z_offset > GSF_MIN_PARAM) && (p->applied.depth_sensor_z_offset < GSF_MAX_PARAM))
-    {
-        sprintf(temp2, "%+06.2f", p->applied.depth_sensor_z_offset);
-    }
-    else
-    {
-    	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-    	return (-1);
-    }
-    strcat(temp, temp2);
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
+        /* The APPLIED_CENTER_OF_ROTATION_OFFSET parameter defines the x,y,z offsets
+         * in ship coordinates to which have been used to calculate a heave
+         * difference between the motion sensor and the ship reference point.
+         */
+        memset(temp, 0, sizeof(temp));
+        sprintf(temp, "APPLIED_CENTER_OF_ROTATION_OFFSET=");
+        if (p->applied.center_of_rotation_x_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s,",
+                GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp2, "%+06.2f,",
+                p->applied.center_of_rotation_x_offset);
+        }
+        strcat(temp, temp2);
+        if (p->applied.center_of_rotation_y_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp2, "%+06.2f,",
+                p->applied.center_of_rotation_y_offset);
+        }
+        strcat(temp, temp2);
+        if (p->applied.center_of_rotation_z_offset == GSF_UNKNOWN_PARAM_VALUE)
+        {
+            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
+        }
+        else
+        {
+            sprintf(temp2, "%+06.2f",
+                p->applied.center_of_rotation_z_offset);
+        }
+        strcat(temp, temp2);
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
     
-    /* The APPLIED_RX_TRANSDUCER_OFFSET parameter is the x, y, z position
-     * offsets of the receiver array that have been applied
-     */
-    sprintf (temp, "APPLIED_RX_TRANSDUCER_OFFSET=");
-    if (numArrays == 1)
-    {
-        if (p->applied.rx_transducer_x_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        /* The APPLIED_POSITION_LATENCY parameter defines the navigation
+         * sensor latency value which has already been applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->applied.position_latency == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_x_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_x_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_x_offset[0]);
+            sprintf(temp, "APPLIED_POSITION_LATENCY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_POSITION_LATENCY=%+06.3f",
+                p->applied.position_latency);
         }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
         {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
+            return(-1);
         }
-        else if ((p->applied.rx_transducer_y_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_y_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_z_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_z_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_z_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    else if (numArrays == 2)
-    {
-        if (p->applied.rx_transducer_x_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_x_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_x_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_x_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_y_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_y_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_y_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_y_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_z_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_z_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_z_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_z_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_x_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_x_offset[1] > GSF_MIN_PARAM) && (p->applied.rx_transducer_x_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_x_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_y_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_y_offset[1] > GSF_MIN_PARAM) && (p->applied.rx_transducer_y_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_y_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_z_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_z_offset[1] > GSF_MIN_PARAM) && (p->applied.rx_transducer_z_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_z_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
 
-    /* The APPLIED_RX_TRANSDUCER_PITCH parameter is the receiver pitch offset that has been applied.
-     */
-    sprintf (temp, "APPLIED_RX_TRANSDUCER_PITCH_OFFSET=");
-    if (numArrays == 1)
-    {
-        if (p->applied.rx_transducer_pitch_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        /* The APPLIED_ATTITUDE_LATENCY parameter defines the attitude
+         * sensor latency value which has already been applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->applied.attitude_latency == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_pitch_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_pitch_offset[0]);
+            sprintf(temp, "APPLIED_ATTITUDE_LATENCY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_ATTITUDE_LATENCY=%+06.3f",
+                p->applied.attitude_latency);
         }
-        strcat (temp, temp2);
-    }
-    else if (numArrays == 2)
-    {
-        if (p->applied.rx_transducer_pitch_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
         {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
+            return(-1);
         }
-        else if ((p->applied.rx_transducer_pitch_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_pitch_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_pitch_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_pitch_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_pitch_offset[1] > GSF_MIN_PARAM) && (p->applied.rx_transducer_pitch_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_pitch_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
 
-    /* The APPLIED_RX_TRANSDUCER_ROLL parameter is the receiver roll offset that has been applied.
-     */
-    sprintf (temp, "APPLIED_RX_TRANSDUCER_ROLL_OFFSET=");
-    if (numArrays == 1)
-    {
-        if (p->applied.rx_transducer_roll_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
+        /* The APPLIED_DEPTH_SENSOR_LATENCY parameter defines the depth 
+         *  sensor latency value which has already been applied.
+         */
+        memset(temp, 0, sizeof(temp));
+        if (p->applied.depth_sensor_latency == GSF_UNKNOWN_PARAM_VALUE)
         {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_roll_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_roll_offset[0]);
+            sprintf(temp, "APPLIED_DEPTH_SENSOR_LATENCY=%s",
+                GSF_UNKNOWN_PARAM_TEXT);
         }
         else
         {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
+            sprintf(temp, "APPLIED_DEPTH_SENSOR_LATENCY=%+06.3f",
+                p->applied.depth_sensor_latency);
         }
-        strcat (temp, temp2);
+        ret = gsfSetParam(handle, number_parameters++, temp, rec);
+        if (ret)
+        {
+            return(-1);
+        }
     }
-    else if (numArrays == 2)
-    {
-        if (p->applied.rx_transducer_roll_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_roll_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_roll_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_roll_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_roll_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_roll_offset[1] > GSF_MIN_PARAM) && (p->applied.rx_transducer_roll_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_roll_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-
-    /* The APPLIED_RX_TRANSDUCER_HEADING_TO_APPLY parameter is the receiver heading offset that has been applied.
-     */
-    sprintf (temp, "APPLIED_RX_TRANSDUCER_HEADING_OFFSET=");
-    if (numArrays == 1)
-    {
-        if (p->applied.rx_transducer_heading_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_heading_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_heading_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    else if (numArrays == 2)
-    {
-        if (p->applied.rx_transducer_heading_offset[0] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s,", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_heading_offset[0] > GSF_MIN_PARAM) && (p->applied.rx_transducer_heading_offset[0] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f,", p->applied.rx_transducer_heading_offset[0]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-        if (p->applied.rx_transducer_heading_offset[1] == GSF_UNKNOWN_PARAM_VALUE)
-        {
-            sprintf(temp2, "%s", GSF_UNKNOWN_PARAM_TEXT);
-        }
-        else if ((p->applied.rx_transducer_heading_offset[1] > GSF_MIN_PARAM) && (p->applied.rx_transducer_heading_offset[1] < GSF_MAX_PARAM))
-        {
-            sprintf(temp2, "%+06.2f", p->applied.rx_transducer_heading_offset[1]);
-        }
-        else
-        {
-        	gsfError = GSF_PROCESS_PARAM_RECORD_ENCODE_FAILED;
-        	return (-1);
-        }
-        strcat (temp, temp2);
-    }
-    ret = gsfSetParam(handle, number_parameters++, temp, rec);
-    if (ret)
-    {
-        return(-1);
-    }
-    
-    /******* end of the applied parameters *******/
 
     /* The horizontal datum parameter defines the elipsoid to which the
      * latitude longitude values are referenced.
@@ -7051,8 +5691,7 @@ gsfPutMBParams(gsfMBParams *p, gsfRecords *rec, int handle, int numArrays)
  *    The internal form parameters are written into a gsfMBParams data
  *    structure maintained by the caller. Parameters for up to two pairs of
  *    transmit/receive arrays are supported, for systems such as Reson SeaBat
- *    9002.  Any parameter not described in a "KEYWORD=VALUE" format will
- *    be set to "GSF_UNKNOWN_PARAM_VALUE".
+ *    9002.
  *
  * Inputs :
  *     rec = a pointer to the gsfRecords data structure from which the
@@ -7074,7 +5713,6 @@ gsfGetMBParams(gsfRecords *rec, gsfMBParams *p, int *numArrays)
     int i;
     char str[64];
 
-    gsfInitializeMBParams (p);   /* set everything to "unknown" */
     /* Set this value to zero in case we can't determine it */
     *numArrays = 0;
 
@@ -7440,71 +6078,6 @@ gsfGetMBParams(gsfRecords *rec, gsfMBParams *p, int *numArrays)
                     &p->to_apply.depth_sensor_latency);
             }
         }
-        else if (strncmp(rec->process_parameters.param[i], "DEPTH_SENSOR_OFFSET_TO_APPLY", strlen("DEPTH_SENSOR_OFFSET_TO_APPLY")) == 0)
-        {
-            p->to_apply.depth_sensor_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.depth_sensor_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.depth_sensor_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "DEPTH_SENSOR_OFFSET_TO_APPLY=%lf,%lf,%lf",
-                    &p->to_apply.depth_sensor_x_offset,
-                    &p->to_apply.depth_sensor_y_offset,
-                    &p->to_apply.depth_sensor_z_offset);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "RX_TRANSDUCER_OFFSET_TO_APPLY", strlen("RX_TRANSDUCER_OFFSET_TO_APPLY")) == 0)
-        {
-            p->to_apply.rx_transducer_x_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_y_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_z_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_x_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_y_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_z_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "RX_TRANSDUCER_OFFSET_TO_APPLY=%lf,%lf,%lf,%lf,%lf,%lf",
-                    &p->to_apply.rx_transducer_x_offset[0],
-                    &p->to_apply.rx_transducer_y_offset[0],
-                    &p->to_apply.rx_transducer_z_offset[0],
-                    &p->to_apply.rx_transducer_x_offset[1],
-                    &p->to_apply.rx_transducer_y_offset[1],
-                    &p->to_apply.rx_transducer_z_offset[1]);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "RX_TRANSDUCER_PITCH_OFFSET_TO_APPLY", strlen("RX_TRANSDUCER_PITCH_OFFSET_TO_APPLY")) == 0)
-        {
-            p->to_apply.rx_transducer_pitch_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_pitch_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "RX_TRANSDUCER_PITCH_OFFSET_TO_APPLY=%lf,%lf",
-                    &p->to_apply.rx_transducer_pitch_offset[0],
-                    &p->to_apply.rx_transducer_pitch_offset[1]);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "RX_TRANSDUCER_ROLL_OFFSET_TO_APPLY", strlen("RX_TRANSDUCER_ROLL_OFFSET_TO_APPLY")) == 0)
-        {
-            p->to_apply.rx_transducer_roll_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_roll_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "RX_TRANSDUCER_ROLL_OFFSET_TO_APPLY=%lf,%lf",
-                    &p->to_apply.rx_transducer_roll_offset[0],
-                    &p->to_apply.rx_transducer_roll_offset[1]);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "RX_TRANSDUCER_HEADING_OFFSET_TO_APPLY", strlen("RX_TRANSDUCER_HEADING_OFFSET_TO_APPLY")) == 0)
-        {
-            p->to_apply.rx_transducer_heading_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->to_apply.rx_transducer_heading_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "RX_TRANSDUCER_HEADING_OFFSET_TO_APPLY=%lf,%lf",
-                    &p->to_apply.rx_transducer_heading_offset[0],
-                    &p->to_apply.rx_transducer_heading_offset[1]);
-            }
-        }  /** end of "to apply" values */        
         else if (strncmp(rec->process_parameters.param[i], "APPLIED_DRAFT", strlen("APPLIED_DRAFT")) == 0)
         {
             p->applied.draft[0] = GSF_UNKNOWN_PARAM_VALUE;
@@ -7728,72 +6301,6 @@ gsfGetMBParams(gsfRecords *rec, gsfMBParams *p, int *numArrays)
                     &p->applied.depth_sensor_latency);
             }
         }
-        else if (strncmp(rec->process_parameters.param[i], "APPLIED_DEPTH_SENSOR_OFFSET", strlen("APPLIED_DEPTH_SENSOR_OFFSET")) == 0)
-        {
-            p->applied.depth_sensor_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.depth_sensor_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.depth_sensor_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "APPLIED_DEPTH_SENSOR_OFFSET=%lf,%lf,%lf",
-                    &p->applied.depth_sensor_x_offset,
-                    &p->applied.depth_sensor_y_offset,
-                    &p->applied.depth_sensor_z_offset);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_OFFSET", strlen("APPLIED_RX_TRANSDUCER_OFFSET")) == 0)
-        {
-            p->applied.rx_transducer_x_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_y_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_z_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_x_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_y_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_z_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_OFFSET=%lf,%lf,%lf,%lf,%lf,%lf",
-                    &p->applied.rx_transducer_x_offset[0],
-                    &p->applied.rx_transducer_y_offset[0],
-                    &p->applied.rx_transducer_z_offset[0],
-                    &p->applied.rx_transducer_x_offset[1],
-                    &p->applied.rx_transducer_y_offset[1],
-                    &p->applied.rx_transducer_z_offset[1]);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_PITCH_OFFSET", strlen("APPLIED_RX_TRANSDUCER_PITCH_OFFSET")) == 0)
-        {
-            p->applied.rx_transducer_pitch_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_pitch_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_PITCH_OFFSET=%lf,%lf",
-                    &p->applied.rx_transducer_pitch_offset[0],
-                    &p->applied.rx_transducer_pitch_offset[1]);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_ROLL_OFFSET", strlen("APPLIED_RX_TRANSDUCER_ROLL_OFFSET")) == 0)
-        {
-            p->applied.rx_transducer_roll_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_roll_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_ROLL_OFFSET=%lf,%lf",
-                    &p->applied.rx_transducer_roll_offset[0],
-                    &p->applied.rx_transducer_roll_offset[1]);
-            }
-        }
-        else if (strncmp(rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_HEADING_OFFSET", strlen("APPLIED_RX_TRANSDUCER_HEADING_OFFSET")) == 0)
-        {
-            p->applied.rx_transducer_heading_offset[0] = GSF_UNKNOWN_PARAM_VALUE;
-            p->applied.rx_transducer_heading_offset[1] = GSF_UNKNOWN_PARAM_VALUE;
-            if (!strstr(rec->process_parameters.param[i], GSF_UNKNOWN_PARAM_TEXT))
-            {
-                sscanf (rec->process_parameters.param[i], "APPLIED_RX_TRANSDUCER_HEADING_OFFSET=%lf,%lf",
-                    &p->applied.rx_transducer_heading_offset[0],
-                    &p->applied.rx_transducer_heading_offset[1]);
-            }
-        }   /** end of "applied" parameters **/
-        
         /* The horizontal datum parameter defines the elipsoid to which
          * the latitude and longitude values are referenced.
          */
@@ -8182,12 +6689,6 @@ gsfGetSwathBathyBeamWidths(gsfRecords *data, double *fore_aft, double *athwartsh
             {
                 *athwartship = data->mb_ping.sensor_data.gsfDeltaTSpecific.athwartships_beamwidth;
             }
-            break;
-
-        case (GSF_SWATH_BATHY_SUBRECORD_R2SONIC_2022_SPECIFIC):
-        case (GSF_SWATH_BATHY_SUBRECORD_R2SONIC_2024_SPECIFIC):
-            *fore_aft = data->mb_ping.sensor_data.gsfR2SonicSpecific.tx_beamwidth_vert;
-            *athwartship = data->mb_ping.sensor_data.gsfR2SonicSpecific.tx_beamwidth_horiz;
             break;
 
         default:
@@ -8939,14 +7440,6 @@ char *gsfGetSonarTextName(gsfSwathBathyPing *ping)
             ptr = "Imagenex Delta T";
             break;
 
-        case (GSF_SWATH_BATHY_SUBRECORD_R2SONIC_2022_SPECIFIC):
-            ptr = "R2Sonic 2022";
-            break;
-
-        case (GSF_SWATH_BATHY_SUBRECORD_R2SONIC_2024_SPECIFIC):
-            ptr = "R2Sonic 2024";
-            break;
-
         default:
             ptr = "Unknown";
             break;
@@ -8997,11 +7490,6 @@ gsfIsNewSurveyLine(int handle, gsfRecords *rec, double azimuth_change, double *l
 
     new_line = 0;
 
-    if ((handle < 1) || (handle > GSF_MAX_OPEN_FILES))
-    {
-        gsfError = GSF_BAD_FILE_HANDLE;
-        return (-1);
-    }
     if (gsfFileTable[handle-1].last_record_type == GSF_RECORD_SWATH_BATHYMETRY_PING) 
     {   
         /* A negative value for last heading is the start/reset trigger. */
@@ -9022,126 +7510,5 @@ gsfIsNewSurveyLine(int handle, gsfRecords *rec, double azimuth_change, double *l
     }
 
     return(new_line);
-}
-
-/********************************************************************
- *
- * Function Name : gsfInitializeMBParams
- *
- * Description : This function provides a way to initialize all the
- *    sonar processing parameters to "unknown"
- *
- * Inputs :
- *    p = a pointer to the gsfMBParams data structure that needs initializing
- *
- * Returns :
- *    None
- *
- * Error Conditions :
- *    None
- *
- ********************************************************************/
-void
-gsfInitializeMBParams (gsfMBParams *p)
-{
-	int i;
-
-    memset(p->start_of_epoch, 0, sizeof(p->start_of_epoch));
-    p->horizontal_datum = GSF_UNKNOWN_PARAM_VALUE;
-    p->vertical_datum = GSF_UNKNOWN_PARAM_VALUE;
-    p->roll_compensated = GSF_UNKNOWN_PARAM_VALUE;
-    p->pitch_compensated = GSF_UNKNOWN_PARAM_VALUE;
-    p->heave_compensated = GSF_UNKNOWN_PARAM_VALUE;
-    p->tide_compensated = GSF_UNKNOWN_PARAM_VALUE;
-    p->ray_tracing = GSF_UNKNOWN_PARAM_VALUE;
-    p->depth_calculation = GSF_UNKNOWN_PARAM_VALUE;
-    p->vessel_type = GSF_UNKNOWN_PARAM_VALUE;
-    p->full_raw_data = GSF_UNKNOWN_PARAM_VALUE;
-    p->msb_applied_to_attitude = GSF_UNKNOWN_PARAM_VALUE;
-    p->heave_removed_from_gps_tc = GSF_UNKNOWN_PARAM_VALUE;
-
-    /* initialize the "to apply" fields */
-    p->to_apply.position_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.position_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.position_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.antenna_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.antenna_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.antenna_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.mru_pitch_bias = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.mru_roll_bias = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.mru_heading_bias = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.mru_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.mru_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.mru_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.center_of_rotation_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.center_of_rotation_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.center_of_rotation_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.position_latency = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.attitude_latency = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.depth_sensor_latency = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.depth_sensor_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.depth_sensor_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->to_apply.depth_sensor_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    for (i = 0; i < GSF_MAX_OFFSETS; i++)
-    {
-        p->to_apply.draft[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.pitch_bias[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.roll_bias[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.gyro_bias[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.transducer_x_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.transducer_y_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.transducer_z_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.transducer_pitch_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.transducer_roll_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.transducer_heading_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.rx_transducer_x_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.rx_transducer_y_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.rx_transducer_z_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.rx_transducer_pitch_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.rx_transducer_roll_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->to_apply.rx_transducer_heading_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-    }
-
-    /* initialize the "applied" fields */
-    p->applied.position_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.position_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.position_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.antenna_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.antenna_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.antenna_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.mru_pitch_bias = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.mru_roll_bias = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.mru_heading_bias = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.mru_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.mru_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.mru_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.center_of_rotation_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.center_of_rotation_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.center_of_rotation_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.position_latency = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.attitude_latency = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.depth_sensor_latency = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.depth_sensor_x_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.depth_sensor_y_offset = GSF_UNKNOWN_PARAM_VALUE;
-    p->applied.depth_sensor_z_offset = GSF_UNKNOWN_PARAM_VALUE;
-    for (i = 0; i < GSF_MAX_OFFSETS; i++)
-    {
-        p->applied.draft[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.pitch_bias[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.roll_bias[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.gyro_bias[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.transducer_x_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.transducer_y_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.transducer_z_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.transducer_pitch_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.transducer_roll_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.transducer_heading_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.rx_transducer_x_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.rx_transducer_y_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.rx_transducer_z_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.rx_transducer_pitch_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.rx_transducer_roll_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-        p->applied.rx_transducer_heading_offset[i] = GSF_UNKNOWN_PARAM_VALUE;
-    }
 }
 

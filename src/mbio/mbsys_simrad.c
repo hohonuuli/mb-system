@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsys_simrad.c	3.00	8/5/94
- *	$Id$
+ *	$Id: mbsys_simrad.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1994-2012 by
+ *    Copyright (c) 1994-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -176,14 +182,14 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
 #define MBSYS_SIMRAD_C
-#include "../../include/mbsys_simrad.h"
+#include "mbsys_simrad.h"
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbsys_simrad.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbsys_simrad_alloc(int verbose, void *mbio_ptr, void **store_ptr, 

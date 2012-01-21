@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsys_simrad2.h		10/9/98
- *	$Id$
+ *	$Id: mbsys_simrad2.h 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1998-2012 by
+ *    Copyright (c) 1998-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

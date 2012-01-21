@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbeditviz_callbacks.c		4/27/2007
- *    $Id$
+ *    $Id: mbeditviz_callbacks.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2007-2012 by
+ *    Copyright (c) 2007-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -75,10 +81,10 @@
 #include <math.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_format.h"
-#include "../../include/mbsys_singlebeam.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_format.h"
+#include "mbsys_singlebeam.h"
 
 /* GMT include files */
 #include "gmt.h"

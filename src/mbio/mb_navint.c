@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_time.c	10/30/2000
- *    $Id$
+ *    $Id: mb_navint.c 1906 2011-09-27 19:27:33Z caress $
  *
- *    Copyright (c) 2000-2012 by
+ *    Copyright (c) 2000-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -75,16 +81,16 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_io.h"
 /*  #define MB_NAVINT_DEBUG 1
     #define MB_ATTINT_DEBUG 1
     #define MB_HEDINT_DEBUG 1
     #define MB_DEPINT_DEBUG 1 
     #define MB_ALTINT_DEBUG 1 */
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_navint.c 1906 2011-09-27 19:27:33Z caress $";
 
 /*--------------------------------------------------------------------*/
 /* 	function mb_navint_add adds a nav fix to the internal

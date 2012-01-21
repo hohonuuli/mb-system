@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_samesurf.c	6/13/2002
- *	$Id$
+ *	$Id: mbr_samesurf.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2002-2012 by
+ *    Copyright (c) 2002-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -61,12 +67,12 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/sapi.h"
-#include "../../include/mbsys_surf.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "sapi.h"
+#include "mbsys_surf.h"
 
 /* essential function prototypes */
 int mbr_register_samesurf(int verbose, void *mbio_ptr,
@@ -96,7 +102,7 @@ int mbr_dem_samesurf(int verbose, void *mbio_ptr, int *error);
 int mbr_rt_samesurf(int verbose, void *mbio_ptr, void *store_ptr, int *error);
 int mbr_wt_samesurf(int verbose, void *mbio_ptr, void *store_ptr, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_samesurf.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_samesurf(int verbose, void *mbio_ptr, int *error)

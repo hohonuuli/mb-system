@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_mr1prhig.c	3/3/94
- *	$Id$
+ *	$Id: mbr_mr1prhig.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 1994-2012 by
+ *    Copyright (c) 1994-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -121,12 +127,12 @@
 #include <rpc/xdr.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_mr1.h"
-#include "../../include/mbf_mr1prhig.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_mr1.h"
+#include "mbf_mr1prhig.h"
 
 /* essential function prototypes */
 
@@ -167,7 +173,7 @@ int mbr_mr1prhig_wr_hdr(int verbose, XDR *xdrs,
 		struct mbf_mr1prhig_struct *data, char **hdr_comment, int *error);
 int mbr_mr1prhig_wr_ping(int verbose, XDR *xdrs, struct mbf_mr1prhig_struct *data, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_mr1prhig.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_mr1prhig(int verbose, void *mbio_ptr, int *error)

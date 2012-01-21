@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_format.h	1/19/93
- *    $Id$
+ *    $Id: mb_format.h 1903 2011-07-31 22:19:30Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -247,7 +247,7 @@
 #define MB_FORMAT_DEF
 
 /* define date of last format update */
-#define	MB_FORMAT_UPDATEDATE	"$Id$ $Revision: $"
+#define	MB_FORMAT_UPDATEDATE	"$Id: mb_format.h 1903 2011-07-31 22:19:30Z caress $ $Revision: $"
 
 /* Supported swath sonar systems */
 #define	MB_SYS_NONE		0
@@ -282,10 +282,9 @@
 #define	MB_SYS_RESON7K		29
 #define	MB_SYS_JSTAR		30
 #define	MB_SYS_IMAGE83P		31
-#define	MB_SYS_HYSWEEP		32
 
 /* Number of supported MBIO data formats */
-#define	MB_FORMATS	71
+#define	MB_FORMATS	70
 
 /* Data formats supported by MBIO */
 #define MBF_DATALIST	-1
@@ -514,10 +513,6 @@
 					480 beams bathymetry */
 #define MBF_IMAGEMBA	192	/* MBARI processing format for DeltaT multibeam
 					480 beams bathymetry */
-#define MBF_HYSWEEP1	201	/* HYSWEEP format for multibeam data
-					variable beams,  bathymetry, amplitude, and sidescan,
-					ascii text, single files, Hypack. */
-					
 
 /* format registration function prototypes */
 int mbr_register_sbsiomrg(int verbose, void *mbio_ptr, int *error);
@@ -591,7 +586,6 @@ int mbr_register_samesurf(int verbose, void *mbio_ptr, int *error);
 int mbr_register_image83p(int verbose, void *mbio_ptr, int *error);
 int mbr_register_imagemba(int verbose, void *mbio_ptr, int *error);
 int mbr_register_hir2rnav(int verbose, void *mbio_ptr, int *error);
-int mbr_register_hysweep1(int verbose, void *mbio_ptr, int *error);
 int mbr_info_sbsiomrg(int verbose, 
 			int *system, 
 			int *beams_bath_max, 
@@ -2013,26 +2007,6 @@ int mbr_info_imagemba(int verbose,
 			double *beamwidth_ltrack, 
 			int *error);
 int mbr_info_hir2rnav(int verbose, 
-			int *system, 
-			int *beams_bath_max, 
-			int *beams_amp_max, 
-			int *pixels_ss_max, 
-			char *format_name, 
-			char *system_name, 
-			char *format_description, 
-			int *numfile, 
-			int *filetype, 
-			int *variable_beams, 
-			int *traveltime, 
-			int *beam_flagging, 
-			int *nav_source, 
-			int *heading_source, 
-			int *vru_source, 
-			int *svp_source,
-			double *beamwidth_xtrack, 
-			double *beamwidth_ltrack, 
-			int *error);
-int mbr_info_hysweep1(int verbose, 
 			int *system, 
 			int *beams_bath_max, 
 			int *beams_amp_max, 

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_compare.c	11/19/98
- *    $Id$
+ *    $Id: mb_compare.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -51,8 +57,8 @@
 #include <math.h>
 
 /* mbio include files */
-#include "../../include/mb_define.h"
-#include "../../include/mb_process.h"
+#include "mb_define.h"
+#include "mb_process.h"
 
 /* static char rcs_id[]="$Id: mb_compare.c,v 5.4 2003/07/26 17:59:32 caress Exp
 $"; */

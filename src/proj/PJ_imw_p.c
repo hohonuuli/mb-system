@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 #define PROJ_PARMS__ \
 	double	P, Pp, Q, Qp, R_1, R_2, sphi_1, sphi_2, C2; \
 	double	phi_1, phi_2, lam_1; \

@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_hsds2raw.c	6/20/01
- *	$Id$
+ *	$Id: mbr_hsds2raw.c 1907 2011-11-10 04:33:03Z caress $
  *
- *    Copyright (c) 2001-2012 by
+ *    Copyright (c) 2001-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -76,11 +82,11 @@
 #include <rpc/xdr.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_atlas.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_atlas.h"
 	
 /* turn on debug statements here */
 /* #define MBR_HSDS2RAW_DEBUG 1 */
@@ -115,7 +121,7 @@ int mbr_wt_hsds2raw(int verbose, void *mbio_ptr, void *store_ptr, int *error);
 int mbr_hsds2raw_rd_data(int verbose, void *mbio_ptr, void *store_ptr, int *error);
 int mbr_hsds2raw_wr_data(int verbose, void *mbio_ptr, void *store_ptr, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_hsds2raw.c 1907 2011-11-10 04:33:03Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_hsds2raw(int verbose, void *mbio_ptr, int *error)

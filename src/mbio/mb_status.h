@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbio_status.h	2/1/93
- *    $Id$
+ *    $Id: mb_status.h 1912 2011-11-19 15:44:38Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -412,16 +412,16 @@
 #define MB_STATUS_DEF
 
 /* MB-system version id */
-#define	MB_VERSION	"5.3.1917"
-#define	MB_BUILD_DATE	"10 January 2012"
-#define	MB_SVN		"$Id$"
+#define	MB_VERSION	"5.3.1912"
+#define	MB_BUILD_DATE	"19 November 2011"
+#define	MB_SVN		"$Id: mb_status.h 1912 2011-11-19 15:44:38Z caress $"
 
 /* MBIO function boolean convention */
 #define	MB_YES	1
 #define	MB_NO	0
 
 /* MBIO data type ("kind") convention */
-#define	MB_DATA_KINDS			60
+#define	MB_DATA_KINDS			58
 #define	MB_DATA_NONE			0
 #define	MB_DATA_DATA			1	/* general survey data */
 #define	MB_DATA_COMMENT			2	/* general comment */
@@ -480,8 +480,6 @@
 #define	MB_DATA_ATTITUDE1		55	/* ancillary attitude system 1 */
 #define	MB_DATA_ATTITUDE2		56      /* ancillary attitude system 2 */
 #define	MB_DATA_ATTITUDE3		57	/* ancillary attitude system 3 */
-#define	MB_DATA_SONARDEPTH		58	/* HYSWEEP dynamic draft */
-#define	MB_DATA_ALTITUDE		59	/* HYSWEEP single beam echosounder */
 
 /* MBIO function status convention */
 #define	MB_SUCCESS			1

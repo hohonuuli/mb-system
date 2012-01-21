@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_aux.h	10/13/2009
- *    $Id$
+ *    $Id: mb_xgraphics.h 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2009-2012 by
+ *    Copyright (c) 2009-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039

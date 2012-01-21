@@ -1,9 +1,15 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsm20002gsf.c	5/15/2009
  *
- *    $Id$
+ *    $Id: mbsm20002gsf.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2009-2012 by
+ *    Copyright (c) 2009-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -34,11 +40,15 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_aux.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_aux.h"
 
 /* local defines */
 #define	SM2000_NUM_RETURNS	4
@@ -89,7 +99,7 @@ struct sm2000_ping_struct
 	struct sm2000_return_struct returns[SM2000_NUM_RETURNS];
 	};
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbsm20002gsf.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 

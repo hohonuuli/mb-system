@@ -1,6 +1,12 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_glwdrawa.c	5/22/2007
- *    $Id$
+ *    $Id: mb_glwdrawa.c 1770 2009-10-19 17:16:39Z caress $
  *
  *    Altered from original code for MB-System by
  *    David W. Caress (caress@mbari.org)

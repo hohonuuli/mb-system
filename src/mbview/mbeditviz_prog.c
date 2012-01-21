@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbeditviz_prog.c		5/1/2007
- *    $Id$
+ *    $Id: mbeditviz_prog.c 1905 2011-09-13 23:52:36Z caress $
  *
- *    Copyright (c) 2007-2012 by
+ *    Copyright (c) 2007-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -67,11 +73,11 @@
 #include <sys/stat.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_aux.h"
-#include "../../include/mbsys_singlebeam.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_format.h"
+#include "mb_aux.h"
+#include "mbsys_singlebeam.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -83,7 +89,7 @@
 #include "mbeditviz.h"
 
 /* id variables */
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbeditviz_prog.c 1905 2011-09-13 23:52:36Z caress $";
 static char program_name[] = "MBeditviz";
 static char help_message[] = "MBeditviz is a bathymetry editor and patch test tool.";
 static char usage_message[] = "mbeditviz [-H -T -V]";

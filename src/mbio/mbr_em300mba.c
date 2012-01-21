@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbr_em300mba.c	10/16/98
- *	$Id$
+ *	$Id: mbr_em300mba.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1998-2012 by
+ *    Copyright (c) 1998-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -187,14 +193,14 @@
 #include <string.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_define.h"
-#include "../../include/mbsys_simrad2.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_io.h"
+#include "mb_define.h"
+#include "mbsys_simrad2.h"
 
 /* include for byte swapping */
-#include "../../include/mb_swap.h"
+#include "mb_swap.h"
 	
 /* turn on debug statements here */
 /* #define MBR_EM300MBA_DEBUG 1 */
@@ -318,7 +324,7 @@ int mbr_em300mba_wr_ss(int verbose, FILE *mbfp, int swap,
 int mbr_em300mba_wr_wc(int verbose, FILE *mbfp, int swap, 
 		struct mbsys_simrad2_struct *store, int *error);
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbr_em300mba.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mbr_register_em300mba(int verbose, void *mbio_ptr, int *error)

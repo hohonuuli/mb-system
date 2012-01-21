@@ -1,6 +1,6 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mr1pr_defines.h	3/7/2003
- *	$Id$
+ *	$Id: mr1pr_defines.h 1770 2009-10-19 17:16:39Z caress $
  *
  *    Copyright (c) 2003 by
  *    David W. Caress (caress@mbari.org)
@@ -43,44 +43,22 @@
  *	mr1pr_defines.h --
  *	Hawaii MR1 post-processing software definitions.
  */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
 
 #ifndef __MR1PR_DEFINES__
 #define __MR1PR_DEFINES__
 
 /* XDR i/o include file */
-#ifdef IRIX
-#include <rpc/rpc.h>
+#ifdef HAVE_RPC_RPC_H
+# include <rpc/rpc.h>
 #endif
-#ifdef IRIX64
-#include <rpc/rpc.h>
+#ifdef HAVE_RPC_TYPES_H
+# include <rpc/types.h>
+# include <rpc/xdr.h>
 #endif
-#ifdef SOLARIS
-#include <rpc/rpc.h>
-#endif
-#ifdef LINUX
-#include <rpc/rpc.h>
-#endif
-#ifdef LYNX
-#include <rpc/rpc.h>
-#endif
-#ifdef SUN
-#include <rpc/xdr.h>
-#endif
-#ifdef HPUX
-#include <rpc/rpc.h>
-#endif
-#ifdef DARWIN
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-#endif
-#ifdef CYGWIN
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-#endif
-#ifdef OTHER
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-#endif
+
 
 /* Various system dependent defines */
 #ifdef SUN

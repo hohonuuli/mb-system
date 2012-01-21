@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* convert bivariate w Chebyshev series to w Power series */
 #include <projects.h>
 /* basic support procedures */

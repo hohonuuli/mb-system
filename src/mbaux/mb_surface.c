@@ -1,9 +1,15 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_surface.c	5/2/94
- *    $Id$
+ *    $Id: mb_surface.c 1891 2011-05-04 23:46:30Z caress $
  *
  *    Inclusion in MB-System:
- *    Copyright (c) 1994-2012 by
+ *    Copyright (c) 1994-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -93,9 +99,9 @@
 #include <math.h>
 
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_aux.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_aux.h"
 
 #define GMT_CHUNK	2000
 #ifndef FALSE
@@ -202,7 +208,7 @@ double	guess_surface_time(int nx, int ny);
 int	get_prime_factors(int n, int f[]);
 int	gcd_euclid(int a,int b);
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mb_surface.c 1891 2011-05-04 23:46:30Z caress $";
 
 int mb_surface(int verbose, int ndat, float *xdat, float *ydat, float *zdat,
 		double xxmin, double xxmax, double yymin, double yymax, double xxinc, double yyinc,

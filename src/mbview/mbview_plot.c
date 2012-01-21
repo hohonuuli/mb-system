@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*------------------------------------------------------------------------------
  *    The MB-system:	mbview_plot.c	9/26/2003
- *    $Id$
+ *    $Id: mbview_plot.c 1893 2011-05-06 22:12:01Z caress $
  *
- *    Copyright (c) 2003-2012 by
+ *    Copyright (c) 2003-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -102,8 +108,8 @@
 #include "mb_glwdrawa.h"
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* mbview include */
 #include "mbview.h"
@@ -115,7 +121,7 @@
 static Cardinal 	ac;
 static Arg      	args[256];
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mbview_plot.c 1893 2011-05-06 22:12:01Z caress $";
 
 /*------------------------------------------------------------------------------*/
 int mbview_reset_glx(size_t instance)

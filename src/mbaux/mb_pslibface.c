@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_pslibface.c	5/15/94
- *    $Id$
+ *    $Id: mb_pslibface.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -107,9 +113,9 @@
 #include <time.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_aux.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_aux.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -125,7 +131,7 @@ int	*green;
 int	*blue;
 int	rgb[3];
 
-static char rcs_id[]="$Id$";
+static char rcs_id[]="$Id: mb_pslibface.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------------*/
 /* 	function plot_init initializes the GMT plotting. */

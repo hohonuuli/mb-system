@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbhistogram.c	12/28/94
- *    $Id$
+ *    $Id: mbhistogram.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -103,15 +109,15 @@
 #include <string.h>
 
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
+#include "mb_status.h"
+#include "mb_define.h"
 
 /* mode defines */
 #define	MBHISTOGRAM_BATH	0
 #define	MBHISTOGRAM_AMP		1
 #define	MBHISTOGRAM_SS		2
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbhistogram.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 

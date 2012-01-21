@@ -3,9 +3,9 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
                          if 0;
 #--------------------------------------------------------------------
 #    The MB-system:	mbm_arc2grd.perl	4/21/01
-#    $Id$
+#    $Id: mbm_arc2grd.pl 1891 2011-05-04 23:46:30Z caress $
 #
-#    Copyright (c) 2001-2012 by
+#    Copyright (c) 2001-2011 by
 #    D. W. Caress (caress@mbari.org)
 #      Monterey Bay Aquarium Research Institute
 #      Moss Landing, CA
@@ -37,7 +37,7 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 #    10 km off the windward side of Oahu)
 #
 # Version:
-#   $Id$
+#   $Id: mbm_arc2grd.pl 1891 2011-05-04 23:46:30Z caress $
 #
 # Revisions:
 #   $Log: mbm_arc2grd.perl,v $
@@ -84,7 +84,7 @@ $verbose =  ($opt_V || $opt_v);
 if ($help)
 	{
 	print "\n$program_name:\n";
-	print "\nVersion: $Id$\n";
+	print "\nVersion: $Id: mbm_arc2grd.pl 1891 2011-05-04 23:46:30Z caress $\n";
 	print "\nMacro to convert a ArcView ASCII grid to an GMT grid file in the \n";
 	print "GMT NetCDF grid format. This allows users to import the grid\n";
 	print "into GMT. The grid will have the same grid interval in both \n";

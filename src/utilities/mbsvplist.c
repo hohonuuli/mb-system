@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbsvplist.c	1/3/2001
- *    $Id$
+ *    $Id: mbsvplist.c 1891 2011-05-04 23:46:30Z caress $
  *
- *    Copyright (c) 2001-2012 by
+ *    Copyright (c) 2001-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -77,17 +83,21 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* MBIO include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_process.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_process.h"
 
 /* system function declarations */
 char	*ctime();
 char	*getenv();
 
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbsvplist.c 1891 2011-05-04 23:46:30Z caress $";
 
 /*--------------------------------------------------------------------*/
 

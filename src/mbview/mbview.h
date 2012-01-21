@@ -1,8 +1,8 @@
 /*--------------------------------------------------------------------
  *    The MB-system:	mbview.h	10/9/2002
- *    $Id$
+ *    $Id: mbview.h 1903 2011-07-31 22:19:30Z caress $
  *
- *    Copyright (c); 2002-2012 by
+ *    Copyright (c); 2002-2011 by
  *    David W. Caress (caress@mbari.org);
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -100,11 +100,11 @@
 /*--------------------------------------------------------------------*/
 
 #ifndef MB_STATUS_DEF
-#include "../../include/mb_status.h"
+#include "mb_status.h"
 #endif
 
 #ifndef MB_DEFINE_DEF
-#include "../../include/mb_define.h"
+#include "mb_define.h"
 #endif
 
 /* maximum number of mbview windows */
@@ -245,10 +245,6 @@
 #define MBV_NAV_OFF			0
 #define MBV_NAV_VIEW			1
 
-/* vector defines */
-#define MBV_VECTOR_OFF			0
-#define MBV_VECTOR_VIEW			1
-
 /* stat masks */
 #define MBV_STATMASK0	0x01
 #define MBV_STATMASK1	0x02
@@ -353,13 +349,6 @@ struct mbview_navpointw_struct {
 	int	line;
 	int	shot;
 	int	cdp;
-	};
-	
-struct mbview_vectorpointw_struct {
-	int	draped;
-	int	selected;
-	struct mbview_pointw_struct point;
-	double	data;
 	};
 
 struct mbview_profilepoint_struct {
@@ -469,18 +458,6 @@ struct mbview_nav_struct {
 	struct mbview_linesegmentw_struct *segments;
 	};
 
-struct mbview_vector_struct {
-	int	color;
-	int	size;
-	mb_path	name;
-	int	format;
-	int	npoints;
-	int	npoints_alloc;
-	int	nselected;
-	struct mbview_vectorpointw_struct *vectorpts;
-	struct mbview_linesegmentw_struct *segments;
-	};
-
 struct mbview_profile_struct {
 	int	source;
 	mb_path	source_name;
@@ -519,14 +496,6 @@ struct mbview_shareddata_struct {
 	int	nav_selected[2];
 	int	nav_point_selected[2];
 	struct mbview_nav_struct *navs;
-	
-	/* vector data */
-	int	vector_mode;
-	int	nvector;
-	int	nvector_alloc;
-	int	vector_selected;
-	int	vector_point_selected;
-	struct mbview_vector_struct *vectors;
 	};
 
 struct mbview_struct {
@@ -687,7 +656,6 @@ struct mbview_struct {
 	int	route_view_mode;
 	int	nav_view_mode;
 	int	navdrape_view_mode;
-	int	vector_view_mode;
 	int	profile_view_mode;
 	
 	};

@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 # define HLFPI2	2.46740110027233965467
 # define EPS	1e-10
 #define PROJ_PARMS__ \

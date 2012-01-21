@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mb_process.c	9/11/00
- *    $Id$
+ *    $Id: mb_process.c 1895 2011-05-17 07:02:04Z caress $
  *
- *    Copyright (c) 2000-2012 by
+ *    Copyright (c) 2000-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -168,13 +174,18 @@
 #include <sys/stat.h>
 
 /* mbio include files */
-#include "../../include/mb_io.h"
-#include "../../include/mb_status.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_process.h"
+#include "mb_io.h"
+#include "mb_status.h"
+#include "mb_define.h"
+#include "mb_format.h"
+#include "mb_process.h"
 
-static char rcs_id[]="$Id$";
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
+
+static char rcs_id[]="$Id: mb_process.c 1895 2011-05-17 07:02:04Z caress $";
 
 /*--------------------------------------------------------------------*/
 int mb_pr_checkstatus(int verbose, char *file, 

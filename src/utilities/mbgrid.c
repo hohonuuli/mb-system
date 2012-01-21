@@ -1,8 +1,14 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /*--------------------------------------------------------------------
  *    The MB-system:	mbgrid.c	5/2/94
- *    $Id$
+ *    $Id: mbgrid.c 1904 2011-08-19 00:21:14Z caress $
  *
- *    Copyright (c) 1993-2012 by
+ *    Copyright (c) 1993-2011 by
  *    David W. Caress (caress@mbari.org)
  *      Monterey Bay Aquarium Research Institute
  *      Moss Landing, CA 95039
@@ -404,13 +410,17 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 /* mbio include files */
-#include "../../include/mb_status.h"
-#include "../../include/mb_format.h"
-#include "../../include/mb_define.h"
-#include "../../include/mb_io.h"
-#include "../../include/mb_info.h"
-#include "../../include/mb_aux.h"
+#include "mb_status.h"
+#include "mb_format.h"
+#include "mb_define.h"
+#include "mb_io.h"
+#include "mb_info.h"
+#include "mb_aux.h"
 
 /* GMT include files */
 #include "gmt.h"
@@ -500,7 +510,7 @@ int mbgrid_weight(int verbose, double foot_a, double foot_b, double scale,
 FILE	*outfp;
 
 /* program identifiers */
-static char rcs_id[] = "$Id$";
+static char rcs_id[] = "$Id: mbgrid.c 1904 2011-08-19 00:21:14Z caress $";
 char program_name[] = "mbgrid";
 char help_message[] =  "mbgrid is an utility used to grid bathymetry, amplitude, or \nsidescan data contained in a set of swath sonar data files.  \nThis program uses one of four algorithms (gaussian weighted mean, \nmedian filter, minimum filter, maximum filter) to grid regions \ncovered swaths and then fills in gaps between \nthe swaths (to the degree specified by the user) using a minimum\ncurvature algorithm.";
 char usage_message[] = "mbgrid -Ifilelist -Oroot \

@@ -1,3 +1,9 @@
+/* Added HAVE_CONFIG_H for autogen files */
+#ifdef HAVE_CONFIG_H
+#  include <mbsystem_config.h>
+#endif
+
+
 /* based upon Snyder and Linck, USGS-NMD */
 #define PROJ_PARMS__ \
     double a2, a4, b, c1, c3; \
